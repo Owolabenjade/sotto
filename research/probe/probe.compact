@@ -1,0 +1,25 @@
+pragma language_version >= 0.20;
+
+import CompactStandardLibrary;
+
+export ledger members: HistoricMerkleTree<16, Bytes<32>>;
+export ledger nullifiers: Set<Bytes<32>>;
+export ledger reportCount: Counter;
+
+witness secretKey(): Bytes<32>;
+witness findPath(leaf: Bytes<32>): MerkleTreePath<16, Bytes<32>>;
+
+export circuit enroll(commitment: Bytes<32>): [] {
+  members.insert(disclose(commitment));
+}
+
+export circuit fileReport(epoch: Bytes<32>, reportHash: Bytes<32>): [] {
+  const sk = secretKey();
+  const leaf = persistentHash<Vector<2, Bytes<32>>>([pad(32, "insider:member"), sk]);
+  const path = findPath(leaf);
+  assert(members.checkRoot(disclose(merkleTreePathRoot<16, Bytes<32>>(path))), "not a member");
+  const nul = persistentHash<Vector<3, Bytes<32>>>([pad(32, "insider:nullifier"), sk, epoch]);
+  assert(!nullifiers.member(disclose(nul)), "already reported");
+  nullifiers.insert(disclose(nul));
+  reportCount.increment(1);
+}
