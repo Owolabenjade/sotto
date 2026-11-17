@@ -41,3 +41,12 @@ Method: `npm run compile:fast && npm run test:sim` via scripts/wsl-run.sh
 Result: 2 files, 28 tests passed in 15.4s. sotto.sim.test.ts 24 (registry 5, filing 10, response clock 5, thread 4); crypto.sim.test.ts 4. Includes: non-member, lying witness, revoked member with replayed stale path, double report per period, timestamp slack, non-officer guards, assertNotInPublicState for every member secret and the officer secret, and no member key in case records.
 Label: OBSERVED
 Limits: In-memory runtime only: no proofs, no network, no fees. Block time is simulated with Sim.at().
+
+## E-004: Demo path runs end to end on the local devnet with real proofs
+Date (UTC): 2026-11-18T00:20Z
+Commit: 071abdc plus uncommitted src/test/sotto.test.ts and src/providers.ts rename (committed right after this entry)
+Environment: WSL2 Ubuntu, Docker 28.5.1; images midnight-node 2.1.101, indexer-standalone 4.4.101, proof-server 9.0.0 (undeployed network); compact 0.36.0 full compile (7 circuits, 36.8s); midnight-js 5.0.0, wallet-sdk 2.0.0, testkit-js 5.0.0
+Method: `docker compose up -d --wait`, then `LOG_LEVEL=warn npm run test:local` (src/test/sotto.test.ts)
+Result: 6/6 passed in 213s of test time: deploy (17.0s); enrol 3 members (70.2s); member files a sealed report from a different wallet, officer decrypts it from the indexer (29.4s); duplicate report in the same period rejected; acknowledge + officer question + anonymous reporter answer, ackOnTime=1, messageCount=3, reporter decrypts the question (70.5s); revoked member rejected (22.9s).
+Label: OBSERVED
+Limits: Local undeployed network, not Preview. Rejection tests assert that the call throws, not which assert fired (the sim suite E-003 checks messages). Fees are paid by test wallets, not sponsored.

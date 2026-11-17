@@ -11,11 +11,11 @@ Version source: https://docs.midnight.network/relnotes/support-matrix.md (read 2
 |---|---|---|---|---|---|---|
 | Compact devtools (`compact`) in WSL Ubuntu | 0.5.3 | critical | 2026-11-16T16:00Z | E-001 | verified | Windows unsupported natively; WSL only. Matrix lists devtools 0.5.1; 0.5.3 installed and works |
 | Compact toolchain (`compact compile`) | 0.36.0 (language 0.28.0) | critical | 2026-11-16T16:00Z | E-001 | verified | Never run a bare `compact update` |
-| @midnight-ntwrk/compact-runtime | 0.21.0 | critical | | | unverified | Must match the compiler exactly |
-| @midnight-ntwrk/midnight-js | 5.0.0 | critical | | | unverified | |
-| @midnightntwrk/wallet-sdk | 2.0.0 | critical | | | unverified | 1.x cannot transact on ledger 9 |
-| Proof server (docker midnightntwrk/proof-server) | 9.0.0 | critical | | | unverified | Always local on :6300. Sees private witnesses, so a hosted one weakens the privacy model (U-1 in STATE) |
-| midnight-local-dev (undeployed network) | main | critical (tests) | | | unverified | Needs Docker and Node 22; genesis wallet pre-funded |
+| @midnight-ntwrk/compact-runtime (via midnight-js-protocol 5.0.0, v9) | 0.21.0 | critical | 2026-11-18T00:20Z | E-003, E-004 | verified | Must match the compiler exactly |
+| @midnight-ntwrk/midnight-js-* | 5.0.0 (network-id 5.0.0-rc.5) | critical | 2026-11-18T00:20Z | E-004 | verified | |
+| @midnightntwrk/wallet-sdk | 2.0.0 | critical | 2026-11-18T00:20Z | E-004 | verified | 1.x cannot transact on ledger 9 |
+| Proof server (docker midnightntwrk/proof-server) | 9.0.0 | critical (tests) | 2026-11-18T00:20Z | E-004 | verified | Local on :6300 for tests. In the browser Lace proves via the DApp connector (leaderboard example), so the site needs no hosted proof server |
+| Local devnet via compose.yml (node 2.1.101, indexer 4.4.101) | images pinned | critical (tests) | 2026-11-18T00:20Z | E-004 | verified | midnight-local-dev is archived; compose.yml copied from midnight-examples (9c354d6). Image pulls can fail with short read: retry |
 | Midnight Preview network (RPC + indexer) | rpc.preview.midnight.network, indexer api/v4 | critical (public demo) | | | unverified | Chain relaunched 2026-11-07; may reset |
 | Preview faucet | faucet.preview.midnight.network | critical | | | unverified | Rate limited; DUST generation takes time |
 | Lace wallet (Midnight, DApp connector 4.1.0) | | critical (UI) | | | unverified | Needs the local proof server setting |

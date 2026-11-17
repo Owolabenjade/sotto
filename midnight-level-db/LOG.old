@@ -1,0 +1,7 @@
+2026/11/18-00:20:08.137930 7adb4bfff6c0 Recovering log #58
+2026/11/18-00:20:08.139695 7adb4bfff6c0 Level-0 table #60: started
+2026/11/18-00:20:08.178717 7adb4bfff6c0 Level-0 table #60: 668 bytes OK
+2026/11/18-00:20:08.223500 7adb4bfff6c0 Delete type=0 #58
+2026/11/18-00:20:08.224640 7adb4bfff6c0 Delete type=3 #57
+2026/11/18-00:20:08.225606 7acc2a7bf6c0 Compacting 5@0 + 0@1 files
+2026/11/18-00:20:08.234096 7acc2a7bf6c0 compacted to: files[ 8 2 0 0 0 0 0 ]

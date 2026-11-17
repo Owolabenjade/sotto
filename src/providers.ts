@@ -33,9 +33,9 @@ import { type ImpureCircuits } from '../contract/index.js';
 // The set of callable circuit ids, derived from the compiled contract's
 // generated types. This tracks whatever circuits your .compact exports, so you
 // never have to edit this file when you add, remove, or rename a circuit.
-export type VotingCircuits = keyof ImpureCircuits<unknown>;
+export type SottoCircuits = keyof ImpureCircuits<unknown>;
 
-export type VotingProviders = MidnightProviders<any>;
+export type SottoProviders = MidnightProviders<any>;
 
 // How long a built transaction stays valid, in seconds (Midnight.js 5's
 // `config.ttlSeconds`).
@@ -65,8 +65,8 @@ export function buildProviders(
   zkConfigPath: string,
   config: NetworkConfig,
   privateState?: PrivateStateStore | 'memory',
-): VotingProviders {
-  const zkConfigProvider = new NodeZkConfigProvider<VotingCircuits>(zkConfigPath);
+): SottoProviders {
+  const zkConfigProvider = new NodeZkConfigProvider<SottoCircuits>(zkConfigPath);
   return {
     privateStateProvider:
       privateState === 'memory'
@@ -76,9 +76,9 @@ export function buildProviders(
           // The random suffix keeps each provider set's private-state store separate
           // when a test builds several sets (wallets, contracts) in the same millisecond.
           privateStateStoreName:
-            privateState?.storeName ?? `voting-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            privateState?.storeName ?? `sotto-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
           // this password has requirements (capital/special chars >= 3)
-          privateStoragePasswordProvider: () => privateState?.password ?? 'Voting-Test-Password',
+          privateStoragePasswordProvider: () => privateState?.password ?? 'Sotto-Test-Password',
           accountId: wallet.getCoinPublicKey(),
         }),
     publicDataProvider: indexerPublicDataProvider(
