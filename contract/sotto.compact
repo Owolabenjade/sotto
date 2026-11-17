@@ -1,0 +1,256 @@
+// Sotto: anonymous insider reports with a public response clock.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Who is who
+//   officer   holds the secret whose hash is `officerPk`; enrols and revokes
+//             members, acknowledges, answers and closes cases.
+//   member    an employee. Generates their own secret off chain and gives the
+//             officer only memberKey(secret), so the officer can never compute
+//             a member's case ids.
+//
+// What is public: the member keys and the tree root, every case's timestamps
+// and status, the response-clock counters, and ciphertexts.
+// What is never public: which member filed a case, a member's secret, report
+// and reply plaintext.
+
+pragma language_version 0.28;
+import CompactStandardLibrary;
+
+export enum CaseStatus { OPEN, ACKNOWLEDGED, CLOSED }
+
+export struct CaseInfo {
+  openedAt: Uint<64>;
+  ackAt: Uint<64>;
+  closedAt: Uint<64>;
+  status: CaseStatus;
+  messageCount: Uint<32>;
+  reporterTag: Bytes<32>;
+  reporterBox: Bytes<32>;
+}
+
+// Configuration, fixed at deployment.
+export sealed ledger orgId: Bytes<32>;
+export sealed ledger officerPk: Bytes<32>;
+export sealed ledger officerBox: Bytes<32>;
+export sealed ledger periodSecs: Uint<64>;
+export sealed ledger ackSecs: Uint<64>;
+export sealed ledger feedbackSecs: Uint<64>;
+export sealed ledger stampSlack: Uint<64>;
+
+// The member registry.
+export ledger members: MerkleTree<10, Bytes<32>>;
+export ledger memberKeys: Set<Bytes<32>>;
+export ledger enrolled: Counter;
+export ledger revokedCount: Counter;
+
+// Cases and their encrypted threads. A message is keyed by
+// messageKey(caseId, seq); seq 0 is the report itself.
+export ledger cases: Map<Bytes<32>, CaseInfo>;
+export ledger messages: Map<Bytes<32>, Opaque<"Uint8Array">>;
+export ledger fromReporter: Map<Bytes<32>, Boolean>;
+export ledger messageAt: Map<Bytes<32>, Uint<64>>;
+
+// The public response clock.
+export ledger caseCount: Counter;
+export ledger ackOnTime: Counter;
+export ledger ackLate: Counter;
+export ledger closedOnTime: Counter;
+export ledger closedLate: Counter;
+
+witness secretKey(): Bytes<32>;
+witness memberPath(key: Bytes<32>): MerkleTreePath<10, Bytes<32>>;
+
+constructor(org: Bytes<32>, box: Bytes<32>, period: Uint<64>, ack: Uint<64>, feedback: Uint<64>, slack: Uint<64>) {
+  orgId = disclose(org);
+  officerPk = disclose(officerKey(secretKey()));
+  officerBox = disclose(box);
+  assert(disclose(period) > 0, "Period must be positive");
+  periodSecs = disclose(period);
+  ackSecs = disclose(ack);
+  feedbackSecs = disclose(feedback);
+  stampSlack = disclose(slack);
+}
+
+// ---- Keys and identifiers (pure, reused off chain) ----
+
+export pure circuit officerKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "sotto:officer"), sk]);
+}
+
+export pure circuit memberKey(sk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "sotto:member"), sk]);
+}
+
+// One case id per member per period per deployment. It is the rate limit, and
+// it can't be linked across periods or deployments without the secret.
+export pure circuit caseNullifier(sk: Bytes<32>, period: Uint<64>, instance: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<4, Bytes<32>>>([pad(32, "sotto:case"), sk, period as Field as Bytes<32>, instance]);
+}
+
+// Proves authorship of a case for follow-up messages, without the member key.
+export pure circuit reporterTag(sk: Bytes<32>, caseId: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "sotto:reporter"), sk, caseId]);
+}
+
+export pure circuit messageKey(caseId: Bytes<32>, seq: Uint<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "sotto:message"), caseId, seq as Field as Bytes<32>]);
+}
+
+// ---- Guards ----
+
+circuit requireOfficer(): [] {
+  assert(disclose(officerKey(secretKey())) == officerPk, "Only the officer can do this");
+}
+
+// A caller-supplied timestamp is accepted only if the block time is in
+// [t, t + stampSlack). That bounds every public time to the slack.
+circuit stamp(t: Uint<64>): Uint<64> {
+  const ts = disclose(t);
+  assert(ts < 1000000000000, "Time out of range");
+  assert(blockTimeGte(ts), "Timestamp is in the future");
+  assert(blockTimeLt((ts + stampSlack) as Uint<64>), "Timestamp is too old");
+  return ts;
+}
+
+circuit append(caseId: Bytes<32>, c: CaseInfo, ts: Uint<64>, enc: Opaque<"Uint8Array">, byReporter: Boolean): CaseInfo {
+  assert(c.messageCount < 1000, "Thread is full");
+  const k = messageKey(caseId, c.messageCount);
+  messages.insert(k, disclose(enc));
+  fromReporter.insert(k, byReporter);
+  messageAt.insert(k, ts);
+  return CaseInfo {
+    openedAt: c.openedAt,
+    ackAt: c.ackAt,
+    closedAt: c.closedAt,
+    status: c.status,
+    messageCount: (c.messageCount + 1) as Uint<32>,
+    reporterTag: c.reporterTag,
+    reporterBox: c.reporterBox
+  };
+}
+
+// ---- Officer: registry ----
+
+export circuit enrol(key: Bytes<32>): [] {
+  requireOfficer();
+  const k = disclose(key);
+  assert(!memberKeys.member(k), "Already enrolled");
+  assert(!members.isFull(), "Registry is full");
+  memberKeys.insert(k);
+  members.insert(k);
+  enrolled.increment(1);
+}
+
+// Overwrites the member's leaf, so no proof against the new root can use it.
+// `index` is the leaf's position (enrolment order), known to the officer.
+export circuit revoke(key: Bytes<32>, index: Uint<64>): [] {
+  requireOfficer();
+  const k = disclose(key);
+  assert(memberKeys.member(k), "Not a member");
+  memberKeys.remove(k);
+  members.insertIndexDefault(disclose(index));
+  revokedCount.increment(1);
+}
+
+// ---- Member: file a report ----
+
+export circuit fileReport(t: Uint<64>, period: Uint<64>, enc: Opaque<"Uint8Array">, box: Bytes<32>): Bytes<32> {
+  const ts = stamp(t);
+  const p = disclose(period);
+  assert(blockTimeGte((p * periodSecs) as Uint<64>), "Period has not started");
+  assert(blockTimeLt(((p + 1) * periodSecs) as Uint<64>), "Period has ended");
+
+  const sk = secretKey();
+  const key = memberKey(sk);
+  const path = memberPath(key);
+  assert(disclose(path.leaf == key), "Path is not for this member");
+  assert(members.checkRoot(disclose(merkleTreePathRoot<10, Bytes<32>>(path))), "Not a current member");
+
+  const caseId = disclose(caseNullifier(sk, p, kernel.self().bytes));
+  assert(!cases.member(caseId), "Already reported this period");
+
+  const opened = CaseInfo {
+    openedAt: ts,
+    ackAt: 0,
+    closedAt: 0,
+    status: CaseStatus.OPEN,
+    messageCount: 0,
+    reporterTag: disclose(reporterTag(sk, caseId)),
+    reporterBox: disclose(box)
+  };
+  cases.insert(caseId, append(caseId, opened, ts, enc, true));
+  caseCount.increment(1);
+  return caseId;
+}
+
+// ---- Officer: case handling ----
+
+export circuit acknowledge(caseId: Bytes<32>, t: Uint<64>): [] {
+  requireOfficer();
+  const ts = stamp(t);
+  const id = disclose(caseId);
+  assert(cases.member(id), "No such case");
+  const c = cases.lookup(id);
+  assert(c.status == CaseStatus.OPEN, "Case is not open");
+  if (ts <= ((c.openedAt + ackSecs) as Uint<64>)) {
+    ackOnTime.increment(1);
+  } else {
+    ackLate.increment(1);
+  }
+  cases.insert(id, CaseInfo {
+    openedAt: c.openedAt,
+    ackAt: ts,
+    closedAt: 0,
+    status: CaseStatus.ACKNOWLEDGED,
+    messageCount: c.messageCount,
+    reporterTag: c.reporterTag,
+    reporterBox: c.reporterBox
+  });
+}
+
+export circuit officerMessage(caseId: Bytes<32>, t: Uint<64>, enc: Opaque<"Uint8Array">): [] {
+  requireOfficer();
+  const ts = stamp(t);
+  const id = disclose(caseId);
+  assert(cases.member(id), "No such case");
+  const c = cases.lookup(id);
+  assert(c.status == CaseStatus.ACKNOWLEDGED, "Acknowledge the case first");
+  cases.insert(id, append(id, c, ts, enc, false));
+}
+
+export circuit closeCase(caseId: Bytes<32>, t: Uint<64>): [] {
+  requireOfficer();
+  const ts = stamp(t);
+  const id = disclose(caseId);
+  assert(cases.member(id), "No such case");
+  const c = cases.lookup(id);
+  assert(c.status == CaseStatus.ACKNOWLEDGED, "Acknowledge the case first");
+  if (ts <= ((c.openedAt + feedbackSecs) as Uint<64>)) {
+    closedOnTime.increment(1);
+  } else {
+    closedLate.increment(1);
+  }
+  cases.insert(id, CaseInfo {
+    openedAt: c.openedAt,
+    ackAt: c.ackAt,
+    closedAt: ts,
+    status: CaseStatus.CLOSED,
+    messageCount: c.messageCount,
+    reporterTag: c.reporterTag,
+    reporterBox: c.reporterBox
+  });
+}
+
+// ---- Member: anonymous follow-up ----
+
+// Proves "I filed this case" with the secret, not membership: a member who has
+// since left can still answer the investigator.
+export circuit reporterMessage(caseId: Bytes<32>, t: Uint<64>, enc: Opaque<"Uint8Array">): [] {
+  const ts = stamp(t);
+  const id = disclose(caseId);
+  assert(cases.member(id), "No such case");
+  const c = cases.lookup(id);
+  assert(disclose(reporterTag(secretKey(), id)) == c.reporterTag, "Not the reporter of this case");
+  assert(c.status != CaseStatus.CLOSED, "Case is closed");
+  cases.insert(id, append(id, c, ts, enc, true));
+}
