@@ -32,3 +32,12 @@ Method: program page (pasted by the user); AKINDO countdown read by the user ("1
 Result: deadline about 2026-11-30T15:00Z; ledger 9 matrix; preview has Midnight-hosted RPC/indexer and a faucet; 159 Wave-1 submissions (snapshot 2026-09-23); 2 whistleblowing matches in Wave 1; depapp repo uses MockOnChainAdapter (mock tx hashes)
 Label: DERIVED
 Limits: Deadline derived from a countdown, not a stated timestamp; the scrape is stale and has no Wave 2 or 3 data.
+
+## E-003: Sotto contract v1 simulator suite passes
+Date (UTC): 2026-11-17T23:08Z
+Commit: 4569712 plus uncommitted src/crypto.ts and src/test/crypto.sim.test.ts (committed right after this entry)
+Environment: WSL2 Ubuntu, Node 22.23.5, npm 11.21.2, compact 0.36.0 (--skip-zk), vitest 5.1.0, @midnight-ntwrk/midnight-js-protocol 5.0.0
+Method: `npm run compile:fast && npm run test:sim` via scripts/wsl-run.sh
+Result: 2 files, 28 tests passed in 15.4s. sotto.sim.test.ts 24 (registry 5, filing 10, response clock 5, thread 4); crypto.sim.test.ts 4. Includes: non-member, lying witness, revoked member with replayed stale path, double report per period, timestamp slack, non-officer guards, assertNotInPublicState for every member secret and the officer secret, and no member key in case records.
+Label: OBSERVED
+Limits: In-memory runtime only: no proofs, no network, no fees. Block time is simulated with Sim.at().
