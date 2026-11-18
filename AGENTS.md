@@ -40,11 +40,11 @@ This repository is the project's memory; chat history is not. Every session star
 
 | Purpose | Command |
 |---|---|
-| Install | TBD (I-003: scaffold) |
-| Run locally | TBD (I-003) |
-| Smoke check (demo path) | TBD (I-005: demo-path smoke script) |
-| Tests | TBD (I-004: Compact simulator tests) |
-| Deploy | TBD (I-006: deploy to Preview) |
+| Install | `npm install` (inside WSL: `wsl.exe -d Ubuntu -- bash scripts/wsl-run.sh "npm install"`) |
+| Run locally | `npm run env:up`, then `npm run ui:dev` with ui/.env.local pointing at a contract |
+| Smoke check (demo path) | `npm run compile && npm run env:up && npm run test:local` (about 8 min) |
+| Tests | `npm run compile:fast && npm run test:sim` (seconds, no network) |
+| Deploy | `MIDNIGHT_NETWORK=preview npx vite-node scripts/preview-setup.ts` (needs funded seeds in .env.preview) |
 
 ## Where things live
 
@@ -59,7 +59,10 @@ This repository is the project's memory; chat history is not. Every session star
 | `ops/DEPENDENCIES.md` | Verified dependency facts |
 | `ops/CLOCK.md` | Deadline, gates, session log |
 | `ops/private/` | Gitignored notes that must not be public |
-| `contract/` (Compact), `research/probe/` (dependency probe) | Application code |
+| `contract/` | Compact contract, witnesses, compiled output in managed/ (gitignored) |
+| `src/` | crypto, wallet and provider harness, tests in src/test/ |
+| `ui/` | Browser app (Vite + React), served with contract/managed/sotto as public dir |
+| `scripts/` | WSL runner, Preview setup |
 
 ## Project rules
 - Compact compiles only in WSL Ubuntu: `wsl.exe -d Ubuntu -- bash -lc 'export PATH="$HOME/.local/bin:$PATH"; cd <wsl path>; compact compile <file> <outdir>'`. Toolchain pinned to 0.36.0; never run a bare `compact update`.
