@@ -1,6 +1,6 @@
 # Sotto: anonymous insider reports, with a response clock anyone can verify
 
-**Live demo:** _deploying to Midnight Preview_ · **Video:** _coming in Wave 3_ · **Deck:** _coming in Wave 3_ · **Contract:** _see [deployments/](deployments/)_
+**[Live response clock](https://sotto-ivory.vercel.app)** (Midnight Preview, no wallet needed) · **Contract:** [`0b0a90a0…eb17a1`](deployments/preview.json) on Preview · **Video:** _recording before the deadline_ · **Deck:** _in progress_
 
 Sotto is a whistleblowing channel on [Midnight](https://midnight.network). An employee proves, in zero knowledge, that they are a current member of the organisation's registry and files a report that nobody can trace back to them. The compliance officer answers through an encrypted two-way thread. Every acknowledgement and closure is timestamped on the public ledger, so anyone can check that the channel is actually answered, without seeing a single report.
 
@@ -56,11 +56,16 @@ EU law requires private companies with 50 or more workers to run an internal rep
 |---|---|---|
 | Contract compiles with Compact 0.36.0 (7 circuits, with prover and verifier keys) | OK | `ops/EVIDENCE.md` E-004 |
 | Simulator suite: every guard, the response clock, the thread, revocation, and "no secret in public state" checks | 30 / 30 passed | E-003, E-007 |
+| Midnight Preview: contract deployed (tx `2ef25622…2d22`, block 165,240), 5 members enrolled, a sealed report filed by a member from a separate fee-paying wallet, read by the public page | OK | E-008 |
 | Local devnet, real proofs and transactions: deploy, enrol 3, anonymous sealed report read by the officer, duplicate report rejected, on-time acknowledgement, two-way thread, revoked member rejected | 6 / 6 passed | E-004 |
 
 ## Try it
 
-**Judge path:** _the Preview URL goes here once deployed._
+**Judge path:**
+
+1. Open https://sotto-ivory.vercel.app. It reads the demo channel for "Acme Logistics GmbH" straight from the Preview indexer: no wallet, no account.
+2. To file a report yourself you need [Lace](https://www.lace.io) on the Preview network, a local proof server (`docker run -p 6300:6300 midnightntwrk/proof-server:9.0.0 midnight-proof-server`) and tNIGHT from the [Preview faucet](https://faucet.preview.midnight.network/). Go to **Report**, create a credential and send us the member key: we register it on the channel.
+3. File a report, then watch it appear on the response clock with its 7-day deadline.
 
 **Run locally** (Linux, macOS or WSL; Node 22, Docker, [Compact](https://docs.midnight.network/getting-started/installation) 0.36.0):
 

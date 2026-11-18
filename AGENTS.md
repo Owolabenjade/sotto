@@ -65,6 +65,8 @@ This repository is the project's memory; chat history is not. Every session star
 | `scripts/` | WSL runner, Preview setup |
 
 ## Project rules
+- Docker Desktop must be running for anything that proves: the devnet, the deploy script and Lace in the browser all use the local proof server on 127.0.0.1:6300 (`npm run env:up` or `docker compose up -d --wait proof-server`). It does not autostart on this machine.
+- npm on /mnt/c is slow (install 10 min, vite-node start 2 min). For heavy runs use the native copy: `rsync` the repo (minus node_modules, .git, ui/dist, contract/managed) to `~/build/sotto` in WSL and run there.
 - Compact compiles only in WSL Ubuntu: `wsl.exe -d Ubuntu -- bash -lc 'export PATH="$HOME/.local/bin:$PATH"; cd <wsl path>; compact compile <file> <outdir>'`. Toolchain pinned to 0.36.0; never run a bare `compact update`.
 - Versions follow the ledger 9 matrix in `ops/DEPENDENCIES.md`. Ledger 8 tutorials and samples do not work.
 - Commits are authored by owolabenjade. No co-author lines or tool credits in commits, README or submission copy.

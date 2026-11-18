@@ -24,3 +24,6 @@ Sleep, travel, classes, work. Plan the gates around these.
 ## Session log
 | Start (UTC) | End (UTC) | Who | Did | Next |
 |---|---|---|---|---|
+| 2026-11-16T15:46Z | 2026-11-16T17:00Z | agent + human | Research, Gate A (idea A), Gate B (Sotto), foundation init, repo pushed | Dependencies |
+| 2026-11-17T23:00Z | 2026-11-18T00:40Z | agent | Contract v1, sim 28/28 (E-003), devnet 6/6 (E-004), UI written | Preview deploy |
+| 2026-11-18T12:04Z | 2026-11-18T13:20Z | agent + human | Faucet funding, hosting (E-005), UX pass, directive check and feedback-clock fix (E-006, E-007), Preview deploy and live page (E-008). Tracer bullet gate met. | Lace test, sponsorship |

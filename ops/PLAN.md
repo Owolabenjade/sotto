@@ -19,7 +19,7 @@ The single flow that must work every time. Everything else is optional.
 ## Milestones
 | ID | Milestone | Done when (observable) | Gate | Status |
 |---|---|---|---|---|
-| M1 | Tracer bullet | Steps 1-2 run end to end, ugly, on a public URL against Preview; smoke check passes | Tracer bullet | todo |
+| M1 | Tracer bullet | Steps 1-2 run end to end, ugly, on a public URL against Preview; smoke check passes | Tracer bullet | done (E-004, E-008) |
 | M2 | Core | Steps 1-5 complete with real transactions; simulator tests cover member, non-member, double report, revoked, ack, reply | Feature freeze | todo |
 | M3 | Hardened | Loading, empty and error states on the demo path; design floor passes; benchmark gaps fixed or disclosed | Video recorded | todo |
 | M4 | Shipped | README, deck, video and AKINDO submission done; presubmit passes; platform shows submitted | Submitted | todo |

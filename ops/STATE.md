@@ -1,27 +1,34 @@
 # STATE
 
-Updated (UTC): 2026-11-16T16:21Z
-Verified at commit: none (first commit pending)
-Phase: research done; foundation set up; next phase tracer bullet
+Updated (UTC): 2026-11-18T13:14Z
+Verified at commit: 40f8db4 (plus this handoff's uncommitted docs)
+Phase: tracer bullet done (M1); core build (M2) next
 
 ## Works now
-- Compact 0.36.0 in WSL compiles a Merkle-membership + nullifier probe (E-001).
+- Contract v1.1 (feedback clock per Art. 9(1)(f)) compiles; simulator suite 30/30 (E-007).
+- Local devnet end to end 6/6 with real proofs (E-004, previous contract revision).
+- Preview: contract 0b0a90a0…eb17a1 deployed, 5 members, 1 sealed demo case (E-008). Secrets in .demo/preview.json (gitignored).
+- Public page https://sotto-ivory.vercel.app reads it with no wallet (E-005, E-008).
 
 ## Broken or known issues
-- None recorded.
+- Devnet suite not yet rerun on contract v1.1.
+- Browser filing and officer actions through Lace untested (I-014).
+- Clock headline wraps to five lines on desktop; tighten in polish.
+- Reporter's own Lace wallet pays fees, which can link reports to it (I-012).
 
 ## In progress
-- I-001 dependency verification (compiler done; runtime, wallet SDK, proof server, local-dev, Preview pending).
+- I-007 UI for acknowledge, thread and close (written, untested in browser).
 
 ## Next action
-1. Human: create a public GitHub repo "sotto", add the topic midnightntwrk, share the URL (I-002). The gh CLI is not installed.
-2. Agent: bring up midnight-local-dev and proof server 9.0.0 in WSL Docker and run one real transaction (I-001), then scaffold (I-003).
+1. Human: Lace on Preview with local proof server, funded, DUST registered; create a credential on /#/report and send the member key.
+2. Agent: script to enrol a member key as officer (scripts/officer.ts), then test filing through Lace (I-014).
+3. Agent: rerun devnet suite on v1.1; DUST sponsorship (I-012).
 
 ## Blockers and waiting on
-- GitHub repo URL from the human.
+- Lace setup by the human.
+- Docker Desktop must be running for any proving (it closed once today).
 
 ## Open unknowns
-- U-1: The proof server is always local and sees private witnesses. Can judges try the live URL without running Docker? Options: Lace with a local proof server (honest, more setup) or a hosted proof server (weakens privacy; must be disclosed). Resolve during the tracer bullet.
-- U-2: Does DUST sponsorship or a relayer work on Preview, so the reporter's wallet never pays fees?
-- U-3: Where encrypted report bodies live (on-ledger ciphertext vs off-chain store with an on-chain hash).
-- U-4: Exact deadline time on AKINDO (derived from the countdown as 15:00Z).
+- U-2: DUST sponsorship from a browser wallet flow (private-party shows the Node flow).
+- U-4: Exact deadline time on AKINDO (countdown-derived 2026-11-30T15:00Z); question for Discord.
+- GDPR view of ciphertext on an immutable ledger: not established; never claim compliance.

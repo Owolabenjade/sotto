@@ -191,12 +191,16 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
   const acked = view.ackOnTime + view.ackLate;
   const closed = view.closedOnTime + view.closedLate;
   const behind = view.ackLate + view.overdue;
+  const waiting = view.cases.filter((c) => c.status === 'open' && c.ackDue >= nowSecs());
+  const nextDue = waiting.length > 0 ? Math.min(...waiting.map((c) => c.ackDue)) : null;
   const headline =
     view.cases.length === 0
       ? `${view.orgName} runs a verified whistleblowing channel. No reports yet.`
-      : behind === 0
-        ? `${view.orgName} has acknowledged every report on time.`
-        : `${view.orgName} has ${plural(behind, 'report', 'reports')} acknowledged late or still overdue.`;
+      : behind > 0
+        ? `${view.orgName} has ${plural(behind, 'report', 'reports')} acknowledged late or still overdue.`
+        : nextDue !== null
+          ? `${view.orgName} has no late reports. ${plural(waiting.length, 'report is', 'reports are')} awaiting acknowledgement, due in ${fmtSpan(nextDue - nowSecs())}.`
+          : `${view.orgName} has acknowledged every report on time.`;
 
   return (
     <section>

@@ -77,3 +77,12 @@ Method: `npm run compile:fast && npm run test:sim`
 Result: 2 files, 30 tests passed. New: "starts the feedback clock at the acknowledgement" (closed at ack + 90d - 60s counts on time although it is past opened + 90d); "starts the feedback clock at day 7 when the acknowledgement was late" (one on time, one late). Full compile with keys afterwards: 18.0s, 14 key files.
 Label: OBSERVED
 Limits: Simulator only; the devnet suite (E-004) ran against the previous contract and has not been rerun on this one.
+
+## E-008: Sotto runs on Midnight Preview; public page reads it with no wallet
+Date (UTC): 2026-11-18T13:14Z
+Commit: 40f8db4 plus uncommitted ui headline fix and deployments/preview.json (committed right after this entry)
+Environment: Midnight Preview (rpc.preview.midnight.network, indexer api/v4), proof server 9.0.0 local, WSL native copy, contract compiled with Compact 0.36.0 including the Art. 9(1)(f) fix (E-007). Browser: Chrome via the claude-in-chrome extension, dark scheme, 1272 px wide.
+Method: `MIDNIGHT_NETWORK=preview npx vite-node scripts/preview-setup.ts` (officer wallet ALICE, members' fee wallet BOB, both funded from the Preview faucet); indexer GraphQL contractAction query; open https://sotto-ivory.vercel.app/ and read the page.
+Result: Deployed at 0b0a90a00567eb69d1a8338e396a283c3d0a98e47067ec7824c818bf5deb17a1 (deploy tx 2ef2562236382c1631fd268cdccc9c41b85cc1946c1610cf49737f52401a2d22, block 165240). Enrolled 5 members; member 3 filed a sealed report from the BOB wallet: case 655f2b093d4669ed94c3a2691218b694400136a9880a40299aef78a98fce74b0; ledger enrolled=5, cases=1. The page shows "Reports received 1", the case "due in 7 days, Awaiting acknowledgement", and the public/never-public section; console showed no errors after load.
+Label: OBSERVED
+Limits: First run failed with "Failed to connect to Proof Server" because Docker Desktop had closed (no deploy happened); rerun succeeded. Browser filing via Lace not yet tested. Fees for the demo report were paid by a script wallet, not sponsored.
