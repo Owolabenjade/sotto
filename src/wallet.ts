@@ -333,7 +333,7 @@ export async function syncWallet(
 // it starts from a new genesis each time. MIDNIGHT_WALLET_STATE=off turns this
 // off.
 
-const STATE_DIR = fileURLToPath(new URL('../../../.wallet-state/', import.meta.url));
+const STATE_DIR = fileURLToPath(new URL('../.wallet-state/', import.meta.url));
 const stateFiles = new WeakMap<WalletFacade, string>();
 
 type SavedWalletState = { version: 1; shielded: string; unshielded: string; dust: string };
