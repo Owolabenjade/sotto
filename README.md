@@ -8,13 +8,13 @@ Sotto is a whistleblowing channel on [Midnight](https://midnight.network). An em
 
 - **Verified, anonymous reports.** A report is accepted only from a credential in the current member registry, and the proof reveals nothing about which member filed it.
 - **A conversation, not a drop box.** The officer can ask follow-up questions and the reporter can answer, still anonymously, even after leaving the company.
-- **Public accountability.** A public page shows, from the ledger, how many reports were acknowledged within 7 days, how many are overdue and how many were closed within 3 months.
+- **Public accountability.** A public page shows, from the ledger, how many reports were acknowledged within 7 days, how many are overdue and how many got feedback within 3 months of acknowledgement.
 
 ## Why it matters
 
 Whistleblowing channels fail in two ways: reporters don't trust them to protect their identity, and nobody outside the company can tell whether reports are answered. Existing tools ask the reporter to trust the operator on the first point and give the public nothing on the second. Sotto replaces both with proofs.
 
-Companies with 50 or more employees in the EU must run an internal reporting channel, acknowledge reports within 7 days and give feedback within 3 months (Directive (EU) 2019/1937, Art. 8 and 9). _Being verified against the directive text: I-009._
+EU law requires private companies with 50 or more workers to run an internal reporting channel, acknowledge each report within seven days and give feedback within three months of the acknowledgement ([Directive (EU) 2019/1937](https://www.legislation.gov.uk/eudr/2019/1937/chapter/II), Art. 8(3) and 9(1)). Sotto puts exactly those two deadlines on a public clock.
 
 ## How it works
 
@@ -35,7 +35,7 @@ Companies with 50 or more employees in the EU must run an internal reporting cha
 1. The employee generates a secret in their browser and gives the officer only `memberKey(secret)`. The officer registers it with [`enrol`](contract/sotto.compact). Because the officer never holds the secret, they cannot compute a member's case ids.
 2. To report, the browser seals the text to the officer's X25519 key ([`src/crypto.ts`](src/crypto.ts)) and calls [`fileReport`](contract/sotto.compact). The circuit checks a Merkle path from `memberKey(secret)` to the current registry root, derives the case id as a nullifier of the secret, the 30-day period and the contract address, and refuses a second report in the same period.
 3. The public ledger stores the case's timestamps and status and the ciphertext. It never stores which member filed it.
-4. [`acknowledge`](contract/sotto.compact) and [`closeCase`](contract/sotto.compact) compare the officer's timestamp against the 7-day and 90-day windows and increment public on-time or late counters. Every caller-supplied time is checked against block time to within 15 minutes.
+4. [`acknowledge`](contract/sotto.compact) and [`closeCase`](contract/sotto.compact) compare the officer's timestamp against the 7-day window and the 3-month feedback window, which starts at the acknowledgement (or at day 7 if that was late), as Art. 9(1)(f) sets it, and increment public on-time or late counters. Every caller-supplied time is checked against block time to within 15 minutes.
 5. Follow-ups are sealed to a per-case reporter key derived from the secret. [`reporterMessage`](contract/sotto.compact) proves authorship of the case with `reporterTag(secret, caseId)`, not membership, so a reporter who has since left can still answer.
 6. [`revoke`](contract/sotto.compact) overwrites a member's leaf, so no proof against the new root can use that credential.
 
@@ -55,7 +55,7 @@ Companies with 50 or more employees in the EU must run an internal reporting cha
 | Check | Result | Evidence |
 |---|---|---|
 | Contract compiles with Compact 0.36.0 (7 circuits, with prover and verifier keys) | OK | `ops/EVIDENCE.md` E-004 |
-| Simulator suite: every guard, the response clock, the thread, revocation, and "no secret in public state" checks | 28 / 28 passed | E-003 |
+| Simulator suite: every guard, the response clock, the thread, revocation, and "no secret in public state" checks | 30 / 30 passed | E-003, E-007 |
 | Local devnet, real proofs and transactions: deploy, enrol 3, anonymous sealed report read by the officer, duplicate report rejected, on-time acknowledgement, two-way thread, revoked member rejected | 6 / 6 passed | E-004 |
 
 ## Try it

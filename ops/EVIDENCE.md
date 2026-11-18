@@ -59,3 +59,21 @@ Method: `npx tsc --noEmit -p ui` (clean); `npm run ui:build` (built in 21.8s aft
 Result: 200 for all three; fileReport.prover served with 45,098,477 bytes (same as the compiled file); production alias https://sotto-ivory.vercel.app, no deployment protection on the alias.
 Label: OBSERVED
 Limits: Page load only; no contract address in this build, no browser render checked, no Lace interaction.
+
+## E-006: EU Whistleblowing Directive thresholds and deadlines, verbatim
+Date (UTC): 2026-11-18T13:05Z
+Commit: fa8cbc7
+Environment: web; EUR-Lex returned HTTP 202 with an empty body to scripted requests, so the text was read from legislation.gov.uk's copy of the directive as adopted
+Method: curl https://www.legislation.gov.uk/eudr/2019/1937/chapter/II/data.htm?view=plain and extract Articles 8 and 9
+Result: Art. 8(3): "Paragraph 1 shall apply to legal entities in the private sector with 50 or more workers." Art. 9(1)(b): "acknowledgment of receipt of the report to the reporting person within seven days of that receipt;" Art. 9(1)(f): "a reasonable timeframe to provide feedback, not exceeding three months from the acknowledgment of receipt or, if no acknowledgement was sent to the reporting person, three months from the expiry of the seven-day period after the report was made;"
+Label: DERIVED
+Limits: legislation.gov.uk is an official UK copy of the EU text, not EUR-Lex itself. National transpositions can differ (calendar vs working days, thresholds for public bodies). Consequence: the contract's feedback clock was counting from the report; fixed to count from the acknowledgement (E-007).
+
+## E-007: Feedback clock follows Art. 9(1)(f); simulator suite 30/30
+Date (UTC): 2026-11-18T13:08Z
+Commit: fa8cbc7 plus uncommitted contract/sotto.compact closeCase change and two new tests
+Environment: WSL2 native copy (~/build/sotto), compact 0.36.0 --skip-zk, vitest 5.1.0
+Method: `npm run compile:fast && npm run test:sim`
+Result: 2 files, 30 tests passed. New: "starts the feedback clock at the acknowledgement" (closed at ack + 90d - 60s counts on time although it is past opened + 90d); "starts the feedback clock at day 7 when the acknowledgement was late" (one on time, one late). Full compile with keys afterwards: 18.0s, 14 key files.
+Label: OBSERVED
+Limits: Simulator only; the devnet suite (E-004) ran against the previous contract and has not been rerun on this one.

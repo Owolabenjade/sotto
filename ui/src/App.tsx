@@ -223,7 +223,7 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
           <dd className={view.overdue > 0 ? 'late' : undefined}>{view.overdue}</dd>
         </div>
         <div>
-          <dt>Closed within {fmtSpan(view.feedbackSecs)}</dt>
+          <dt>Feedback within {fmtSpan(view.feedbackSecs)} of acknowledgement</dt>
           <dd>
             {view.closedOnTime}
             {closed > 0 && <small> of {closed}</small>}

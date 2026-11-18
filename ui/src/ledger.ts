@@ -70,16 +70,19 @@ export function viewOf(l: Ledger, nowSecs = Math.floor(Date.now() / 1000)): Chan
   const cases: CaseView[] = [];
   for (const [id, c] of l.cases) {
     const openedAt = Number(c.openedAt);
+    const ackAt = c.ackAt === 0n ? null : Number(c.ackAt);
+    // Art. 9(1)(f): three months from the acknowledgement, or from day 7 if it was late or missing.
+    const clockStart = ackAt !== null && ackAt <= openedAt + ackSecs ? ackAt : openedAt + ackSecs;
     cases.push({
       id,
       idHex: bytesToHex(id),
       openedAt,
-      ackAt: c.ackAt === 0n ? null : Number(c.ackAt),
+      ackAt,
       closedAt: c.closedAt === 0n ? null : Number(c.closedAt),
       status: statusOf(c.status),
       messageCount: Number(c.messageCount),
       ackDue: openedAt + ackSecs,
-      feedbackDue: openedAt + feedbackSecs,
+      feedbackDue: clockStart + feedbackSecs,
       reporterBox: c.reporterBox,
     });
   }

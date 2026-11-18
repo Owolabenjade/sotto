@@ -221,6 +221,32 @@ describe('the response clock', () => {
     expect(l.cases.lookup(a).status).toBe(CaseStatus.CLOSED);
   });
 
+  it('starts the feedback clock at the acknowledgement, as Art. 9(1)(f) does', async () => {
+    const { result: id } = await file(sim, ALICE);
+    const ackAt = T0 + 2 * DAY;
+    await as(sim, OFFICER).at(ackAt).call('acknowledge', id, BigInt(ackAt));
+    // Later than opened + 90 days, but within 90 days of the acknowledgement.
+    const t = ackAt + FEEDBACK - 60;
+    const { ledger: l } = await as(sim, OFFICER).at(t).call('closeCase', id, BigInt(t));
+    expect(l.closedOnTime).toBe(1n);
+    expect(l.closedLate).toBe(0n);
+  });
+
+  it('starts the feedback clock at day 7 when the acknowledgement was late', async () => {
+    const { result: a } = await file(sim, ALICE);
+    const { result: b } = await file(sim, BOB);
+    const lateAck = T0 + ACK + 10 * DAY;
+    await as(sim, OFFICER).at(lateAck).call('acknowledge', a, BigInt(lateAck));
+    await as(sim, OFFICER).at(lateAck).call('acknowledge', b, BigInt(lateAck));
+    const inTime = T0 + ACK + FEEDBACK - 60;
+    await as(sim, OFFICER).at(inTime).call('closeCase', a, BigInt(inTime));
+    // Within 90 days of the late acknowledgement, but past day 7 + 90 days.
+    const tooLate = T0 + ACK + FEEDBACK + 60;
+    const { ledger: l } = await as(sim, OFFICER).at(tooLate).call('closeCase', b, BigInt(tooLate));
+    expect(l.closedOnTime).toBe(1n);
+    expect(l.closedLate).toBe(1n);
+  });
+
   it('rejects closing an unacknowledged case', async () => {
     const { result: id } = await file(sim, ALICE);
     await expectRejects(() => as(sim, OFFICER).call('closeCase', id, BigInt(T0)), 'Acknowledge the case first');

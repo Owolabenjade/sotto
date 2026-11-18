@@ -225,7 +225,12 @@ export circuit closeCase(caseId: Bytes<32>, t: Uint<64>): [] {
   assert(cases.member(id), "No such case");
   const c = cases.lookup(id);
   assert(c.status == CaseStatus.ACKNOWLEDGED, "Acknowledge the case first");
-  if (ts <= ((c.openedAt + feedbackSecs) as Uint<64>)) {
+  // Directive (EU) 2019/1937 Art. 9(1)(f): feedback within three months of
+  // the acknowledgement, or of the end of the seven-day window if the
+  // acknowledgement was late.
+  const ackDue = (c.openedAt + ackSecs) as Uint<64>;
+  const clockStart = c.ackAt <= ackDue ? c.ackAt : ackDue;
+  if (ts <= ((clockStart + feedbackSecs) as Uint<64>)) {
     closedOnTime.increment(1);
   } else {
     closedLate.increment(1);

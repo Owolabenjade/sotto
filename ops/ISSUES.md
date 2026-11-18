@@ -13,7 +13,7 @@ Status: todo | doing | blocked | done | parked | cut
 | I-006 | Deploy contract to Preview and UI to a public URL | agent | doing | M1 | Contract address on Preview; UI loads logged out and shows the ledger | |
 | I-007 | Acknowledge, follow-up, anonymous reply, public response clock | agent | doing | M2 | Steps 3-5 work with real transactions | Contract + devnet E-004; UI written, not yet run |
 | I-008 | Credential revocation (leaf overwrite) | agent | done | M2 | Revoked credential rejected in a test | E-003, E-004 (UI button untested) |
-| I-009 | Verify EU Whistleblowing Directive timelines (7 days / 3 months) against the text | agent | todo | M3 | EVIDENCE entry quoting Directive 2019/1937 | |
+| I-009 | Verify EU Whistleblowing Directive timelines (7 days / 3 months) against the text | agent | done | M3 | EVIDENCE entry quoting Directive 2019/1937 | E-006 (led to the feedback-clock fix, E-007) |
 | I-010 | Slide deck | agent | todo | M4 | Deck link in SUBMISSION | |
 | I-011 | Attribute proofs (department, seniority) | | parked | | | |
 | I-012 | DUST sponsorship so the reporter's wallet never pays (private-party pattern) | agent | todo | M2 | Report filed from a zero-balance wallet with fees paid by the org sponsor | |
