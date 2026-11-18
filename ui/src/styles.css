@@ -477,3 +477,116 @@ footer {
     transition: none !important;
   }
 }
+
+/* ---- added in the UX pass ---- */
+
+.skip {
+  position: absolute;
+  left: 16px;
+  top: -48px;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 6px;
+  z-index: 10;
+}
+
+.skip:focus {
+  top: 12px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+h3 {
+  font: 600 15px/1.3 var(--sans);
+  margin: 0 0 8px;
+}
+
+.field {
+  margin-bottom: 8px;
+}
+
+.field .hint {
+  margin-top: -6px;
+}
+
+.mono-input {
+  font-family: var(--mono);
+  font-size: 14px;
+}
+
+.status-line {
+  font-size: 14px;
+  color: var(--ink);
+  min-height: 1.4em;
+  max-width: 52ch;
+}
+
+.steps {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  max-width: 62ch;
+}
+
+.steps li {
+  margin-bottom: 8px;
+}
+
+.ledger-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--ink);
+}
+
+.ledger-split > div {
+  padding: 16px 24px 16px 0;
+}
+
+.ledger-split > div + div {
+  padding-left: 24px;
+  border-left: 1px solid var(--rule);
+}
+
+.ledger-split ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--ink-2);
+}
+
+.ledger-split li {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+  .ledger-split {
+    grid-template-columns: 1fr;
+  }
+  .ledger-split > div + div {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+  }
+}
+
+.credential .label {
+  margin: 0 0 4px;
+}
+
+.credential p {
+  margin: 0 0 12px;
+}
+
+.ok-text {
+  color: var(--ok);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}

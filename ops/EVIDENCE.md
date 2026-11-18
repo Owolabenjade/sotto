@@ -50,3 +50,12 @@ Method: `docker compose up -d --wait`, then `LOG_LEVEL=warn npm run test:local` 
 Result: 6/6 passed in 213s of test time: deploy (17.0s); enrol 3 members (70.2s); member files a sealed report from a different wallet, officer decrypts it from the indexer (29.4s); duplicate report in the same period rejected; acknowledge + officer question + anonymous reporter answer, ackOnTime=1, messageCount=3, reporter decrypts the question (70.5s); revoked member rejected (22.9s).
 Label: OBSERVED
 Limits: Local undeployed network, not Preview. Rejection tests assert that the call throws, not which assert fired (the sim suite E-003 checks messages). Fees are paid by test wallets, not sponsored.
+
+## E-005: UI builds and Vercel serves it with the prover keys
+Date (UTC): 2026-11-18T12:46Z
+Commit: 58bdc30 plus uncommitted ui/tsconfig.json and the vite-plugin-top-level-await override in package.json
+Environment: WSL2 native copy (~/build/sotto, npm install 53s), vite 6.4.4; Vercel CLI 65.15.0, account owolabenjade, static deploy of ui/dist (134 MB)
+Method: `npx tsc --noEmit -p ui` (clean); `npm run ui:build` (built in 21.8s after pinning @swc/core 1.15.47); `vercel deploy --yes --prod` from a folder holding ui/dist; curl of /, /keys/fileReport.prover, /compiler/contract-manifest.json
+Result: 200 for all three; fileReport.prover served with 45,098,477 bytes (same as the compiled file); production alias https://sotto-ivory.vercel.app, no deployment protection on the alias.
+Label: OBSERVED
+Limits: Page load only; no contract address in this build, no browser render checked, no Lace interaction.

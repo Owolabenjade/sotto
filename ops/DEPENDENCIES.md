@@ -20,7 +20,7 @@ Version source: https://docs.midnight.network/relnotes/support-matrix.md (read 2
 | Preview faucet | faucet.preview.midnight.network | critical | | | unverified | Rate limited; DUST generation takes time |
 | Lace wallet (Midnight, DApp connector 4.1.0) | | critical (UI) | | | unverified | Needs the local proof server setting |
 | DUST sponsorship / relayer pays fees | | optional (anonymity hardening) | | | unverified | Without it the fee payer can link the reporter; disclose |
-| Hosting for the UI (Vercel or similar) | | critical (public URL) | | | unverified | |
+| Hosting for the UI (Vercel static deploy) | Vercel CLI 65.15.0 | critical (public URL) | 2026-11-18T12:46Z | E-005 | verified | 134 MB upload accepted; 45 MB key served. Production alias https://sotto-ivory.vercel.app |
 
 ## How to verify a dependency
 1. Read the current official docs; note the URL and the date you read them.

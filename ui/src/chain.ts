@@ -89,12 +89,23 @@ export const connectWallet = (): Promise<Providers> => (providers ??= build().ca
   throw e;
 }));
 
+export type Progress = (step: string) => void;
+
 /** Proves and submits one circuit call as the holder of `secretKey`. */
-export async function callCircuit(address: string, secretKey: Uint8Array, circuitId: Circuit, args: unknown[]): Promise<void> {
+export async function callCircuit(
+  address: string,
+  secretKey: Uint8Array,
+  circuitId: Circuit,
+  args: unknown[],
+  progress: Progress = () => {},
+): Promise<void> {
+  progress('Connecting to Lace');
   const p = await connectWallet();
   const id = `sotto-${circuitId}`;
   await p.privateStateProvider.forContract(address as never).set(id, createSottoPrivateState(secretKey));
+  progress('Lace is generating the zero-knowledge proof and will ask you to approve. This takes about a minute.');
   await submitCallTx(p, { compiledContract: CompiledSottoContract, contractAddress: address, privateStateId: id, circuitId, args } as never);
+  progress('Accepted. Reading the updated ledger');
 }
 
 /** A caller-supplied timestamp a little behind the wall clock, inside the contract's slack. */
