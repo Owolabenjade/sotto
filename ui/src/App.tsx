@@ -187,93 +187,130 @@ const StatusTag = ({ c }: { c: CaseView }) => {
 
 // ---- public response clock ----
 
+/**
+ * One deadline window drawn as a track: the window runs from `start` to
+ * `due`. The fill reaches `done` (or now, if still running); a tick marks the
+ * deadline; a fill past the tick is late. The text beside it says the same
+ * thing in words, so the bar is never the only carrier of meaning.
+ */
+function Window(props: { label: string; start: number | null; due: number | null; done: number | null; pending: string }) {
+  const now = nowSecs();
+  if (props.start === null || props.due === null) {
+    return (
+      <div className="window waiting">
+        <span className="window-label">{props.label}</span>
+        <span className="track" aria-hidden="true" />
+        <span className="window-text muted">{props.pending}</span>
+      </div>
+    );
+  }
+  const length = props.due - props.start;
+  const end = props.done ?? now;
+  const span = Math.max(length, end - props.start);
+  const fill = Math.min(1, (end - props.start) / span);
+  const tick = length / span;
+  const late = end > props.due;
+  const text = props.done
+    ? `${late ? `${fmtSpan(props.done - props.due)} late` : `after ${fmtSpan(props.done - props.start)}`}`
+    : late
+      ? `${fmtSpan(now - props.due)} overdue`
+      : `due in ${fmtSpan(props.due - now)}`;
+  const state = late ? 'late' : props.done ? 'ok' : 'running';
+  return (
+    <div className={`window ${state}`}>
+      <span className="window-label">{props.label}</span>
+      <span className="track" aria-hidden="true">
+        <span className="fill" style={{ width: `${Math.max(fill * 100, 1.5)}%` }} />
+        <span className="tick" style={{ left: `${tick * 100}%` }} />
+      </span>
+      <span className="window-text">{text}</span>
+    </div>
+  );
+}
+
 function Clock({ view, address, readAt }: { view: ChannelView; address: string; readAt: number | null }) {
   const acked = view.ackOnTime + view.ackLate;
   const closed = view.closedOnTime + view.closedLate;
   const behind = view.ackLate + view.overdue;
   const waiting = view.cases.filter((c) => c.status === 'open' && c.ackDue >= nowSecs());
   const nextDue = waiting.length > 0 ? Math.min(...waiting.map((c) => c.ackDue)) : null;
-  const headline =
+
+  const [headline, detail] =
     view.cases.length === 0
-      ? `${view.orgName} runs a verified whistleblowing channel. No reports yet.`
+      ? [`${view.orgName}’s reporting channel is open.`, 'No reports yet.']
       : behind > 0
-        ? `${view.orgName} has ${plural(behind, 'report', 'reports')} acknowledged late or still overdue.`
+        ? [`${view.orgName} is late on ${plural(behind, 'report', 'reports')}.`, `${view.overdue} overdue now, ${view.ackLate} acknowledged after the ${fmtSpan(view.ackSecs)} deadline.`]
         : nextDue !== null
-          ? `${view.orgName} has no late reports. ${plural(waiting.length, 'report is', 'reports are')} awaiting acknowledgement, due in ${fmtSpan(nextDue - nowSecs())}.`
-          : `${view.orgName} has acknowledged every report on time.`;
+          ? [`${view.orgName} has no late reports.`, `${plural(waiting.length, 'report is', 'reports are')} awaiting acknowledgement, the next due in ${fmtSpan(nextDue - nowSecs())}.`]
+          : [`${view.orgName} has answered every report on time.`, `${plural(view.cases.length, 'report', 'reports')}, all acknowledged within ${fmtSpan(view.ackSecs)}.`];
 
   return (
     <section>
-      <h1 className="display">{headline}</h1>
-      <p className="lede">
-        Every figure here is read from the public Midnight ledger. Nobody, including {view.orgName}, can see who filed a report or what it
-        says. Anyone can see whether it was answered in time.
-      </p>
+      <div className="hero">
+        <div>
+          <h1 className="display">{headline}</h1>
+          <p className="detail">{detail}</p>
+          <p className="lede">
+            Every figure here is read from the public Midnight ledger. Nobody, including {view.orgName}, can see who filed a report or what it
+            says. Anyone can see whether it was answered in time.
+          </p>
+        </div>
+        <dl className="figures">
+          <div>
+            <dt>Reports received</dt>
+            <dd>{view.cases.length}</dd>
+          </div>
+          <div>
+            <dt>Acknowledged within {fmtSpan(view.ackSecs)}</dt>
+            <dd>
+              {view.ackOnTime}
+              {acked > 0 && <small> of {acked}</small>}
+            </dd>
+          </div>
+          <div>
+            <dt>Overdue now</dt>
+            <dd className={view.overdue > 0 ? 'late' : undefined}>{view.overdue}</dd>
+          </div>
+          <div>
+            <dt>Feedback within 3 months</dt>
+            <dd>
+              {view.closedOnTime}
+              {closed > 0 && <small> of {closed}</small>}
+            </dd>
+          </div>
+        </dl>
+      </div>
 
-      <dl className="figures">
-        <div>
-          <dt>Reports received</dt>
-          <dd>{view.cases.length}</dd>
-        </div>
-        <div>
-          <dt>Acknowledged within {fmtSpan(view.ackSecs)}</dt>
-          <dd>
-            {view.ackOnTime}
-            {acked > 0 && <small> of {acked}</small>}
-          </dd>
-        </div>
-        <div>
-          <dt>Overdue now</dt>
-          <dd className={view.overdue > 0 ? 'late' : undefined}>{view.overdue}</dd>
-        </div>
-        <div>
-          <dt>Feedback within {fmtSpan(view.feedbackSecs)} of acknowledgement</dt>
-          <dd>
-            {view.closedOnTime}
-            {closed > 0 && <small> of {closed}</small>}
-          </dd>
-        </div>
-      </dl>
-
-      <h2>Cases</h2>
+      <h2>The clock, case by case</h2>
       {view.cases.length === 0 ? (
-        <p className="empty">No reports yet. When an employee files one, it appears here within a minute, with its deadline.</p>
+        <p className="empty">When an employee files a report it appears here within a minute, with both deadlines running.</p>
       ) : (
-        <div className="table-wrap">
-          <table className="cases">
-            <caption className="sr-only">Cases with their response times</caption>
-            <thead>
-              <tr>
-                <th scope="col">Case</th>
-                <th scope="col">Opened</th>
-                <th scope="col">Acknowledgement</th>
-                <th scope="col">Status</th>
-                <th scope="col" className="num">
-                  Messages
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.cases.map((c) => (
-                <tr key={c.idHex}>
-                  <td className="mono">{shortId(c.idHex)}</td>
-                  <td>{fmtDate(c.openedAt)}</td>
-                  <td>
-                    {c.ackAt
-                      ? `after ${fmtSpan(c.ackAt - c.openedAt)}`
-                      : c.ackDue >= nowSecs()
-                        ? `due in ${fmtSpan(c.ackDue - nowSecs())}`
-                        : `${fmtSpan(nowSecs() - c.ackDue)} late`}
-                  </td>
-                  <td>
-                    <StatusTag c={c} />
-                  </td>
-                  <td className="num">{c.messageCount}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ol className="clock-list">
+          {view.cases.map((c) => {
+            const ackStart = c.ackAt !== null && c.ackAt <= c.ackDue ? c.ackAt : c.ackDue;
+            return (
+              <li key={c.idHex} className="clock-row">
+                <div className="clock-meta">
+                  <span className="mono">Case {shortId(c.idHex)}</span>
+                  <StatusTag c={c} />
+                  <span className="muted">
+                    Opened {fmtDate(c.openedAt)} · {plural(c.messageCount, 'message', 'messages')}
+                  </span>
+                </div>
+                <div className="clock-windows">
+                  <Window label={`Acknowledge · ${fmtSpan(view.ackSecs)}`} start={c.openedAt} due={c.ackDue} done={c.ackAt} pending="" />
+                  <Window
+                    label="Feedback · 3 months"
+                    start={c.ackAt !== null ? ackStart : null}
+                    due={c.ackAt !== null ? c.feedbackDue : null}
+                    done={c.closedAt}
+                    pending="starts at acknowledgement"
+                  />
+                </div>
+              </li>
+            );
+          })}
+        </ol>
       )}
 
       <h2>What the ledger shows, and what it never shows</h2>
@@ -326,11 +363,38 @@ const remember = (caseHex: string, seq: number, text: string) => {
   }
 };
 
+/**
+ * Starts downloading the proving keys a member's circuits need as soon as the
+ * Report page opens, so the browser cache already holds them when Lace asks
+ * for a proof. FetchZkConfigProvider requests the same URLs.
+ */
+const prefetched = new Set<string>();
+function prefetchKeys(circuits: string[]) {
+  for (const c of circuits) {
+    for (const path of [`keys/${c}.prover`, `keys/${c}.verifier`, `zkir/${c}.bzkir`]) {
+      if (prefetched.has(path)) continue;
+      prefetched.add(path);
+      void fetch(`${window.location.origin}/${path}`).then((r) => r.arrayBuffer()).catch(() => prefetched.delete(path));
+    }
+  }
+}
+
+const LaceNote = () => (
+  <p className="lace-note">
+    When Lace asks you to approve, it shows the transaction’s public part: the contract, the case id, the timestamps and your text as
+    ciphertext. That is exactly what the ledger will show anyone. Your credential and your words are not in it.
+  </p>
+);
+
 function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; address: string; refresh: () => Promise<void> }) {
   const [cred, setCred] = useState<MemberCredential | null>(loadMember);
   const [text, setText] = useState('');
   const [importing, setImporting] = useState('');
   const [importErr, setImportErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (cred) prefetchKeys(['fileReport', 'reporterMessage']);
+  }, [cred]);
 
   if (!cred) {
     return (
@@ -431,6 +495,7 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
             placeholder="What you saw, when and where."
             hint={`Sealed in this browser to the officer's key. The ledger stores only ciphertext, padded so its length gives nothing away. Leave out details only you could know. One report per ${fmtSpan(view.periodSecs)}.`}
           />
+          <LaceNote />
           <Action run={file} busyLabel="Filing…" disabled={text.trim().length < 10}>
             Seal and file report
           </Action>

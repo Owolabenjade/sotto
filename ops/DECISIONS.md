@@ -49,3 +49,11 @@ Context: The page must serve the compiled prover keys (108 MB, largest 45 MB) fo
 Decision: Build in WSL (`npm run ui:build`), deploy `ui/dist` with the Vercel CLI (account owolabenjade, logged in).
 Alternatives: commit contract/managed and build on Vercel (leaderboard's approach); GitHub Pages; Cloudflare Pages (25 MB per-file limit rules it out).
 Consequences: Redeploys are manual; record each deployed commit in EVIDENCE. Upload size limits on Vercel are UNKNOWN until the first deploy.
+
+## D-007: Use transientHash for every Sotto identifier
+Date (UTC): 2026-11-19T11:30Z
+Status: accepted
+Context: The human asked to shorten proving time; a browser filing took about 165s. persistentHash is SHA-256 inside the circuit.
+Decision: officerKey, memberKey, caseNullifier, reporterTag and messageKey use transientHash (E-010).
+Alternatives: keep persistentHash (stable across compiler upgrades, 4-12x larger circuits); reduce Merkle depth (caps the registry below 1,024 members).
+Consequences: Member keys and case ids are only valid for contracts compiled with the same toolchain; a compiler upgrade means re-enrolment. Preview redeployed; existing members re-register.

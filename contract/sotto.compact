@@ -28,6 +28,12 @@ export struct CaseInfo {
   reporterBox: Bytes<32>;
 }
 
+// Hashing: every identifier below uses transientHash, the circuit-friendly
+// hash. persistentHash (SHA-256) made fileReport 4x and the reply circuits
+// 6x larger (research/hash-probe). Compact does not promise transientHash is
+// stable across compiler upgrades, so member keys and case ids are only valid
+// for contracts compiled with the same toolchain (0.36.0).
+
 // Configuration, fixed at deployment.
 export sealed ledger orgId: Bytes<32>;
 export sealed ledger officerPk: Bytes<32>;
@@ -74,26 +80,26 @@ constructor(org: Bytes<32>, box: Bytes<32>, period: Uint<64>, ack: Uint<64>, fee
 // ---- Keys and identifiers (pure, reused off chain) ----
 
 export pure circuit officerKey(sk: Bytes<32>): Bytes<32> {
-  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "sotto:officer"), sk]);
+  return transientHash<Vector<2, Bytes<32>>>([pad(32, "sotto:officer"), sk]) as Bytes<32>;
 }
 
 export pure circuit memberKey(sk: Bytes<32>): Bytes<32> {
-  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "sotto:member"), sk]);
+  return transientHash<Vector<2, Bytes<32>>>([pad(32, "sotto:member"), sk]) as Bytes<32>;
 }
 
 // One case id per member per period per deployment. It is the rate limit, and
 // it can't be linked across periods or deployments without the secret.
 export pure circuit caseNullifier(sk: Bytes<32>, period: Uint<64>, instance: Bytes<32>): Bytes<32> {
-  return persistentHash<Vector<4, Bytes<32>>>([pad(32, "sotto:case"), sk, period as Field as Bytes<32>, instance]);
+  return transientHash<Vector<4, Bytes<32>>>([pad(32, "sotto:case"), sk, period as Field as Bytes<32>, instance]) as Bytes<32>;
 }
 
 // Proves authorship of a case for follow-up messages, without the member key.
 export pure circuit reporterTag(sk: Bytes<32>, caseId: Bytes<32>): Bytes<32> {
-  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "sotto:reporter"), sk, caseId]);
+  return transientHash<Vector<3, Bytes<32>>>([pad(32, "sotto:reporter"), sk, caseId]) as Bytes<32>;
 }
 
 export pure circuit messageKey(caseId: Bytes<32>, seq: Uint<32>): Bytes<32> {
-  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "sotto:message"), caseId, seq as Field as Bytes<32>]);
+  return transientHash<Vector<3, Bytes<32>>>([pad(32, "sotto:message"), caseId, seq as Field as Bytes<32>]) as Bytes<32>;
 }
 
 // ---- Guards ----

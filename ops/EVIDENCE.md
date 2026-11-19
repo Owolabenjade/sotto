@@ -95,3 +95,12 @@ Method: Human created a credential on /#/report and sent only the member key; of
 Result: Officer decrypted the browser-sealed text from the ledger: "Overtime hours on the loading dock are recorded as breaks." Case 4e3e698b830b1fc0f765df9e0b2b2395799d904c141aae3138b35b8184509664 acknowledged (64.5s run) and message 1 sent sealed to the case's reporter box.
 Label: OBSERVED (browser side from the human's screenshots; officer side run here)
 Limits: First attempt failed at wallet discovery ("No Midnight wallet found"); fixed in 7a09dbc by matching the connector API major version and rdns, as the Midnight docs describe. The reporter's own Lace wallet paid the fee (I-012). Which proof path Lace used (its own getProvingProvider or the localhost fallback) was not logged. Lace version not recorded.
+
+## E-010: transientHash shrinks circuits 4-12x; devnet end to end 6/6 on the new contract
+Date (UTC): 2026-11-19T11:30Z
+Commit: d4f68c7 plus uncommitted contract/sotto.compact hash swap (committed right after this entry)
+Environment: WSL2 native copy, compact 0.36.0 full compile, local devnet (node 2.1.101, indexer 4.4.101, proof server 9.0.0), same machine as E-004
+Method: research/hash-probe/sotto-transient.compact (persistentHash replaced by transientHash, output cast to Bytes<32>) compiled; prover key sizes compared with research/hash-probe/compare-keys.sh; then `npm run test:sim` and `docker compose down && docker compose up -d --wait && npm run test:local`
+Result: prover keys, persistent vs transient: fileReport 45,098,477 vs 11,281,849 bytes; reporterMessage 11,278,989 vs 1,774,643; officerMessage 11,279,059 vs 1,774,715; acknowledge 11,278,654 vs 889,587; closeCase 11,278,890 vs 889,823; enrol and revoke unchanged (about 11.28 MB, Merkle tree hashing). Simulator 30/30. Devnet 6/6 in 200.6s: deploy 16.7s, enrol 3 members 78.7s, file report 26.8s (E-004: 29.4s), acknowledge + question + reply 56.2s (E-004: 70.5s), revoked member rejected 20.2s.
+Label: OBSERVED
+Limits: One run each, so the timing differences are indicative, not statistically tested. Wall time includes wallet fee proofs, submission and block waits, which the hash swap does not change. The first devnet attempt failed at deploy with "Invalid Transaction: Custom error: 171" on a chain left running since 2026-11-18; a fresh chain passed. transientHash is not guaranteed stable across compiler versions.
