@@ -1,25 +1,25 @@
 /* Sotto: the nixie-tube laboratory counter.
-   Ground: blackened, slightly warm steel. Panels: gunmetal plates with engraved
-   edges and corner screws. Plasma orange marks only what is live. Steel-grey
-   condensed caps for display (Big Shoulders Display), Saira for labels and
-   reading, Nixie One inside the tubes, JetBrains Mono for case numbers and
-   keys. Status lamps always carry a word. Signature move: a tube cross-fades
-   from the old numeral to the new one when a ledger value changes. */
+   Ground: blackened, slightly warm steel. Plates and the instrument housing are
+   drawn assets (assets/plate.svg, housing.svg) set as 9-slice frames; the tubes
+   are drawn IN-14 envelopes (assets/tube.svg) with live numerals inside.
+   Plasma orange marks only what is live: lit numerals, ledger values, the clock,
+   due lamps, the lit switch, focus, caret and selection. Labels are steel
+   engraved caps. Status lamps always carry a word. Signature move: a tube
+   cross-fades from the old numeral to the new one when a ledger value changes,
+   including the first read, when the tubes light. */
 
 :root {
   --chassis: #0f0e0d;
-  --chassis-2: #151412;
-  --gunmetal: #1c1e21;
-  --gunmetal-2: #23262a;
+  --plate: #202327;
+  --housing: #111214;
   --mesh: #3a3d42;
-  --steel: #5c6168;
-  --glass: #a6acb4;
+  --steel: #6d7178;
+  --glass: #b9bec5;
   --ink: #ebe7df;
-  --ink-2: #b4b0a8;
-  --ink-3: #8a8780;
+  --ink-2: #bdb9b1;
+  --ink-3: #9a968e;
   --plasma: #ff8a00;
   --plasma-soft: #ffb35c;
-  --plasma-deep: #c25a00;
   --ontime: #6fd696;
   --late: #ff5a3c;
   --field: #0b0b0b;
@@ -43,9 +43,7 @@ html {
 
 body {
   margin: 0;
-  background:
-    radial-gradient(1200px 600px at 70% -10%, rgb(255 138 0 / 0.07), transparent 60%),
-    var(--chassis);
+  background: var(--chassis);
   color: var(--ink);
   font: 17px/1.6 var(--sans);
   font-variant-numeric: tabular-nums;
@@ -115,47 +113,46 @@ a:hover {
   top: 12px;
 }
 
-/* ---- panels: gunmetal plates with corner screws ---- */
+/* ---- drawn plates ---- */
 
-.panel {
+.plate,
+.credential,
+.case {
   position: relative;
-  background:
-    repeating-linear-gradient(90deg, rgb(255 255 255 / 0.012) 0 2px, transparent 2px 5px),
-    linear-gradient(180deg, var(--gunmetal-2), var(--gunmetal));
-  border: 1px solid var(--mesh);
-  border-radius: 8px;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.05),
-    0 14px 30px -18px rgb(0 0 0 / 0.9);
-  padding: 26px 28px;
+  border: 14px solid transparent;
+  border-image: url('./assets/plate.svg') 18 / 14px stretch;
+  background: var(--plate);
+  background-clip: padding-box;
+  padding: 14px 16px;
+  filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.55));
 }
 
-.panel::before,
-.panel::after {
+/* Engraved heading: steel caps with a rule that ends in a ring terminal. */
+.engraved {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  font: 600 14px/1.2 var(--label);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--glass);
+}
+
+.engraved::after {
   content: '';
-  position: absolute;
-  top: 11px;
+  flex: 1;
+  height: 1px;
+  background: var(--mesh);
+}
+
+.engraved::before {
+  content: '';
+  order: 2;
   width: 7px;
   height: 7px;
+  border: 1px solid var(--steel);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #6d7178, #2a2c30 70%);
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.5);
-}
-
-.panel::before {
-  left: 11px;
-}
-
-.panel::after {
-  right: 11px;
-}
-
-.panel h2 {
-  font: 600 15px/1.2 var(--label);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--plasma);
-  margin: 0 0 18px;
 }
 
 /* ---- shell ---- */
@@ -166,21 +163,20 @@ a:hover {
   gap: 28px;
   flex-wrap: wrap;
   padding: 16px max(16px, calc((100vw - 1240px) / 2));
-  background: linear-gradient(180deg, #1a1b1d, #121314);
+  background: #141517;
   border-bottom: 1px solid var(--mesh);
-  box-shadow: 0 1px 0 rgb(0 0 0 / 0.8);
+  box-shadow: 0 1px 0 #050506;
 }
 
 .wordmark {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  font: 800 30px/1 var(--display);
-  letter-spacing: 0.14em;
+  font: 700 30px/1 var(--display);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--glass);
-  text-shadow: 0 -1px 0 rgb(0 0 0 / 0.9), 0 1px 0 rgb(255 255 255 / 0.06);
 }
 
 .mark {
@@ -192,21 +188,34 @@ a:hover {
 }
 
 .station {
-  font: 500 16px/1 var(--label);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 500 15px/1 var(--label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-3);
+  color: var(--ink-2);
   padding-left: 24px;
   border-left: 1px solid var(--mesh);
 }
 
+.demo-tag {
+  font: 600 11px/1 var(--label);
+  letter-spacing: 0.14em;
+  padding: 5px 7px;
+  border: 1px solid var(--steel);
+  border-radius: 3px;
+  color: var(--ink-2);
+}
+
 nav {
   display: flex;
-  gap: 4px;
+  align-items: center;
   margin-left: auto;
 }
 
 nav a {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 44px;
@@ -220,6 +229,19 @@ nav a {
   border: 1px solid transparent;
 }
 
+/* node connectors between nav items */
+nav a + a::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-top: -3.5px;
+  border: 1px solid var(--steel);
+  border-radius: 50%;
+}
+
 nav a:hover {
   color: var(--ink);
   border-color: var(--mesh);
@@ -228,7 +250,6 @@ nav a:hover {
 nav a[aria-current='page'] {
   color: var(--plasma);
   border-color: rgb(255 138 0 / 0.55);
-  background: rgb(255 138 0 / 0.07);
 }
 
 .net {
@@ -250,20 +271,18 @@ nav a[aria-current='page'] {
   height: 8px;
   border-radius: 50%;
   background: var(--ontime);
-  box-shadow: 0 0 0 2px rgb(111 214 150 / 0.18);
 }
 
 .dot.off {
   background: var(--late);
-  box-shadow: 0 0 0 2px rgb(255 90 60 / 0.2);
 }
 
 .live-clock {
-  font: 600 16px/1 var(--mono);
+  font: 400 20px/1 var(--tube-font);
   color: var(--plasma-soft);
-  min-width: 6.4em;
+  min-width: 5.6em;
   text-align: right;
-  letter-spacing: 0.04em;
+  text-shadow: 0 0 8px rgb(255 138 0 / 0.6);
 }
 
 main {
@@ -281,16 +300,16 @@ footer {
   color: var(--ink-3);
 }
 
-.loading {
-  font: 500 18px var(--label);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-}
-
 @media (max-width: 760px) {
+  .top {
+    gap: 12px 16px;
+  }
   .station {
-    display: none;
+    order: 4;
+    width: 100%;
+    padding-left: 0;
+    border-left: 0;
+    font-size: 13px;
   }
   nav {
     order: 3;
@@ -299,9 +318,11 @@ footer {
   }
   .net {
     margin-left: auto;
+    padding: 6px 10px;
   }
   .live-clock {
-    display: none;
+    font-size: 17px;
+    min-width: 4.8em;
   }
 }
 
@@ -309,16 +330,15 @@ footer {
 
 h1 {
   margin: 0;
-  font: 800 clamp(44px, 6.4vw, 92px) / 0.95 var(--display);
-  letter-spacing: 0.01em;
+  font: 700 clamp(40px, 5.6vw, 80px) / 1 var(--display);
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #c3c7cc;
-  text-shadow: 0 -1px 0 rgb(0 0 0 / 0.9), 0 2px 0 rgb(255 255 255 / 0.05);
+  color: var(--glass);
   text-wrap: balance;
 }
 
 .work h1 {
-  font-size: clamp(36px, 4.6vw, 60px);
+  font-size: clamp(32px, 4vw, 52px);
   margin-bottom: 28px;
 }
 
@@ -327,17 +347,22 @@ h2 {
 }
 
 .detail {
-  font: 500 clamp(19px, 1.8vw, 23px) / 1.45 var(--sans);
+  font: 500 clamp(18px, 1.7vw, 22px) / 1.45 var(--sans);
   color: var(--ink);
   max-width: 46ch;
-  margin: 20px 0 12px;
+  margin: 18px 0 0;
+  text-wrap: pretty;
 }
 
 .lede {
   font-size: 17px;
   color: var(--ink-2);
-  max-width: 62ch;
+  max-width: 64ch;
   margin: 0;
+}
+
+.lede.spaced {
+  margin-bottom: 20px;
 }
 
 .hint {
@@ -354,6 +379,25 @@ h2 {
   max-width: 60ch;
 }
 
+.planned {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.planned-tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 2px 6px;
+  font: 600 11px/1.4 var(--label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border: 1px solid var(--steel);
+  border-radius: 3px;
+  color: var(--glass);
+}
+
 /* ---- the counter page ---- */
 
 .hero {
@@ -361,22 +405,24 @@ h2 {
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
   gap: 48px;
   align-items: end;
-  margin-bottom: 36px;
+  margin-bottom: 32px;
 }
 
 .hero-copy h1 {
-  max-inline-size: 13ch;
-}
-
-.switch-panel p {
-  margin: 0 0 22px;
-  color: var(--ink-2);
+  max-inline-size: 14ch;
 }
 
 .switch-panel h2 {
-  font: 700 26px/1.15 var(--display);
-  letter-spacing: 0.04em;
+  font: 700 24px/1.15 var(--display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--ink);
+  margin: 0 0 10px;
+}
+
+.switch-panel p {
+  margin: 0 0 20px;
+  color: var(--ink-2);
 }
 
 .switch-note {
@@ -388,78 +434,60 @@ h2 {
 @media (max-width: 900px) {
   .hero {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 24px;
+    margin-bottom: 24px;
   }
 }
 
-.banks {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-  margin-bottom: 36px;
+/* The instrument: one housing, channels sized to their digit count. */
+.instrument {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 8px 0;
+  border: 16px solid transparent;
+  border-image: url('./assets/housing.svg') 20 / 16px stretch;
+  background: var(--housing);
+  background-clip: padding-box;
+  padding: 18px 8px 14px;
+  margin-bottom: 28px;
+  filter: drop-shadow(0 16px 22px rgb(0 0 0 / 0.6));
 }
 
-.bank {
-  position: relative;
-  padding: 22px 18px 16px;
-  background: linear-gradient(180deg, #1a1b1e, #131416);
-  border: 1px solid var(--mesh);
-  border-radius: 8px;
-  box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.03), 0 14px 26px -18px rgb(0 0 0 / 0.9);
+.channel {
+  flex: 1 1 0;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 14px;
+}
+
+.channel + .channel {
+  border-left: 1px solid #26282c;
 }
 
 .tubes {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .tube {
   position: relative;
-  width: clamp(58px, 6.2vw, 84px);
-  aspect-ratio: 0.62;
-  border-radius: 999px 999px 12px 12px;
-  background:
-    radial-gradient(70% 45% at 50% 42%, rgb(255 138 0 / 0.16), transparent 70%),
-    linear-gradient(90deg, rgb(255 255 255 / 0.08), transparent 18%, transparent 78%, rgb(255 255 255 / 0.05)),
-    #0d0d0e;
-  border: 1px solid #4b4e53;
-  box-shadow:
-    inset 0 -10px 18px rgb(0 0 0 / 0.75),
-    inset 0 6px 10px rgb(255 255 255 / 0.04),
-    0 6px 10px -4px rgb(0 0 0 / 0.9);
-  overflow: hidden;
-}
-
-.tube::after {
-  /* the socket */
-  content: '';
-  position: absolute;
-  left: -1px;
-  right: -1px;
-  bottom: -1px;
-  height: 14%;
-  background: linear-gradient(180deg, #2b2d31, #151618);
-  border-top: 1px solid #4b4e53;
-}
-
-.mesh {
-  position: absolute;
-  inset: 10% 14% 16%;
-  background:
-    repeating-linear-gradient(60deg, rgb(120 124 130 / 0.18) 0 1px, transparent 1px 7px),
-    repeating-linear-gradient(-60deg, rgb(120 124 130 / 0.18) 0 1px, transparent 1px 7px);
-  border-radius: 40% 40% 6px 6px;
+  width: clamp(56px, 5.6vw, 76px);
+  aspect-ratio: 100 / 190;
+  background: url('./assets/tube.svg') center / 100% 100% no-repeat;
 }
 
 .numeral {
   position: absolute;
-  inset: 0 0 14% 0;
+  inset: 16% 10% 26% 10%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 400 clamp(52px, 5.6vw, 76px) / 1 var(--tube-font);
-  color: rgb(150 140 128 / 0.07);
+  font: 400 clamp(48px, 5vw, 66px) / 1 var(--tube-font);
+  color: rgb(160 150 138 / 0.08);
   transition: color 520ms var(--ease), text-shadow 520ms var(--ease);
 }
 
@@ -472,41 +500,77 @@ h2 {
 }
 
 .tube.dark .numeral {
-  color: rgb(150 140 128 / 0.06);
+  color: rgb(160 150 138 / 0.07);
 }
 
-.bank-label {
-  margin: 14px 0 0;
+.channel-plate {
+  margin-top: 12px;
+  min-width: 100%;
+  padding: 7px 10px 8px;
   text-align: center;
-  font: 600 13px/1.35 var(--label);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ink-2);
+  background: #191a1d;
+  border: 1px solid #2c2e32;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.7);
 }
 
-.bank.late .bank-label {
+.channel-label {
+  display: block;
+  font: 600 12px/1.3 var(--label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--glass);
+}
+
+.channel-readout {
+  display: block;
+  margin-top: 3px;
+  font: 500 12px/1.3 var(--mono);
+  color: var(--plasma-soft);
+}
+
+.channel.late .channel-label {
   color: var(--late);
 }
 
-@media (max-width: 980px) {
-  .banks {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.after-instrument {
+  margin-bottom: 40px;
 }
 
-@media (max-width: 420px) {
+@media (max-width: 760px) {
+  .instrument {
+    padding: 12px 0 10px;
+    gap: 12px 0;
+  }
+  .channel {
+    min-width: 46%;
+    padding: 0 6px;
+  }
+  .channel:nth-child(3) {
+    border-left: 0;
+  }
   .tube {
-    width: 50px;
+    width: 42px;
   }
   .numeral {
-    font-size: 46px;
+    font-size: 36px;
+  }
+  .channel-plate {
+    padding: 5px 6px 6px;
+  }
+  .channel-label {
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+  }
+  .channel-readout {
+    font-size: 11px;
   }
 }
 
-/* ---- the case log ---- */
+/* ---- the case log and readouts, set on the chassis ---- */
 
-.cases-panel {
-  padding-bottom: 12px;
+.log {
+  margin-bottom: 40px;
 }
 
 table.cases {
@@ -527,12 +591,8 @@ table.cases {
 
 .cases td {
   padding: 15px 14px 15px 0;
-  border-bottom: 1px solid rgb(58 61 66 / 0.55);
+  border-bottom: 1px solid #23252a;
   vertical-align: middle;
-}
-
-.cases tbody tr:last-child td {
-  border-bottom: 0;
 }
 
 .case-id {
@@ -602,7 +662,7 @@ table.cases {
     grid-template-columns: 1fr 1fr;
     gap: 10px 16px;
     padding: 14px 0;
-    border-bottom: 1px solid rgb(58 61 66 / 0.55);
+    border-bottom: 1px solid #23252a;
   }
   .cases td {
     padding: 0;
@@ -618,35 +678,41 @@ table.cases {
   }
 }
 
-.split-panels {
+.readouts {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  margin-top: 18px;
+  gap: 40px;
 }
 
-.split-panels ul {
+.readouts.stacked {
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-content: start;
+}
+
+.readouts ul {
   margin: 0;
   padding-left: 20px;
   color: var(--ink-2);
 }
 
-.split-panels li {
+.readouts li {
   margin-bottom: 8px;
 }
 
-.split-panels li::marker {
+.readouts li::marker {
   color: var(--steel);
 }
 
 @media (max-width: 860px) {
-  .split-panels {
+  .readouts {
     grid-template-columns: 1fr;
+    gap: 28px;
   }
 }
 
 .provenance {
-  margin-top: 28px;
+  margin-top: 36px;
   font-size: 14px;
   color: var(--ink-3);
   max-width: 82ch;
@@ -660,14 +726,10 @@ table.cases {
 
 /* ---- working screens ---- */
 
-.narrow {
-  max-width: 720px;
-}
-
 .work-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 32px;
+  gap: 40px;
   align-items: start;
 }
 
@@ -679,14 +741,19 @@ table.cases {
   .work-grid,
   .work-grid.wide-left {
     grid-template-columns: 1fr;
+    gap: 28px;
   }
 }
 
+.desk-plate {
+  padding: 18px 20px 20px;
+}
+
 .work-sub {
-  font: 600 15px/1.2 var(--label);
-  letter-spacing: 0.18em;
+  font: 600 14px/1.2 var(--label);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--plasma);
+  color: var(--glass);
   margin: 0 0 16px;
 }
 
@@ -701,7 +768,7 @@ table.cases {
 }
 
 .steps li::marker {
-  color: var(--plasma);
+  color: var(--glass);
   font-family: var(--label);
   font-weight: 600;
 }
@@ -717,16 +784,16 @@ table.cases {
   gap: 12px;
   margin: 0 0 24px;
   padding: 14px 18px;
-  border: 1px solid rgb(255 138 0 / 0.5);
+  border: 1px solid var(--mesh);
   border-radius: 6px;
-  background: rgb(255 138 0 / 0.08);
+  background: #16171a;
   color: var(--ink);
   font-weight: 500;
 }
 
 .notice.alarm {
   border-color: rgb(255 90 60 / 0.7);
-  background: rgb(255 90 60 / 0.1);
+  background: rgb(255 90 60 / 0.08);
 }
 
 .notice p {
@@ -734,17 +801,13 @@ table.cases {
 }
 
 .credential {
-  position: relative;
-  padding: 26px 28px;
   margin-bottom: 26px;
-  background: linear-gradient(180deg, var(--gunmetal-2), var(--gunmetal));
-  border: 1px solid var(--mesh);
-  border-radius: 8px;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 14px 30px -18px rgb(0 0 0 / 0.9);
+  padding: 16px 18px 18px;
 }
 
 .credential.ok {
-  border-color: rgb(111 214 150 / 0.45);
+  outline: 1px solid rgb(111 214 150 / 0.4);
+  outline-offset: -6px;
 }
 
 .credential .label {
@@ -752,7 +815,7 @@ table.cases {
   font: 600 13px/1 var(--label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--plasma);
+  color: var(--glass);
 }
 
 .credential .key {
@@ -851,11 +914,11 @@ textarea:focus {
 
 .lace-note .icon {
   margin-top: 3px;
-  color: var(--plasma);
+  color: var(--glass);
 }
 
 .aside {
-  margin-top: 28px;
+  margin-top: 24px;
 }
 
 .aside summary {
@@ -864,7 +927,7 @@ textarea:focus {
   min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: var(--ink-2);
   font-weight: 500;
 }
@@ -873,18 +936,13 @@ textarea:focus {
   display: none;
 }
 
-.aside summary::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-right: 2px solid var(--plasma);
-  border-bottom: 2px solid var(--plasma);
-  transform: rotate(-45deg);
+.aside summary .icon {
+  color: var(--glass);
   transition: transform 160ms var(--ease);
 }
 
-.aside[open] summary::before {
-  transform: rotate(45deg);
+.aside[open] summary .icon {
+  transform: rotate(90deg);
 }
 
 .aside summary:hover {
@@ -904,39 +962,46 @@ textarea:focus {
   max-width: 60ch;
 }
 
-/* ---- buttons: engraved switch plates ---- */
+/* ---- switches and buttons ---- */
 
+/* The lit switch: a recessed plate with a screw at each end. */
+.switch,
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   min-height: 52px;
-  padding: 0 24px;
+  padding: 0 40px;
   font: 700 16px/1 var(--label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--plasma);
-  background: linear-gradient(180deg, #24262a, #17181b);
-  border: 1px solid rgb(255 138 0 / 0.75);
+  background:
+    url('./assets/screw.svg') left 12px center / 10px 10px no-repeat,
+    url('./assets/screw.svg') right 12px center / 10px 10px no-repeat,
+    #121315;
+  border: 1px solid rgb(255 138 0 / 0.7);
   border-radius: 6px;
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 6px 14px -6px rgb(0 0 0 / 0.9);
-  transition: background 160ms var(--ease), color 160ms var(--ease), transform 120ms var(--ease), border-color 160ms var(--ease);
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.75), 0 1px 0 rgb(255 255 255 / 0.05);
+  transition: color 160ms var(--ease), border-color 160ms var(--ease), box-shadow 200ms var(--ease), transform 120ms var(--ease);
 }
 
+.switch:hover:not(:disabled),
 .btn:hover:not(:disabled) {
-  color: #140a00;
-  background: var(--plasma);
+  color: var(--plasma-soft);
   border-color: var(--plasma);
+  box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.75), inset 0 0 18px rgb(255 138 0 / 0.22);
 }
 
+.switch:active:not(:disabled),
 .btn:active:not(:disabled) {
   transform: translateY(1px);
-  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.5);
 }
 
+.switch:disabled,
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -944,16 +1009,18 @@ textarea:focus {
 
 .btn.quiet {
   color: var(--ink);
+  background: #17181b;
   border-color: var(--steel);
   font-size: 14px;
   min-height: 44px;
   padding: 0 16px;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
 .btn.quiet:hover:not(:disabled) {
   color: var(--ink);
-  background: var(--gunmetal-2);
   border-color: var(--glass);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
 .btn.quiet.subtle {
@@ -981,11 +1048,14 @@ textarea:focus {
   border-color: var(--late);
   font-size: 14px;
   min-height: 44px;
+  padding: 0 18px;
+  box-shadow: none;
 }
 
 .btn.danger:hover:not(:disabled) {
-  background: #ff7a60;
   color: #1a0500;
+  background: #ff7a60;
+  box-shadow: none;
 }
 
 .flip-face {
@@ -1044,13 +1114,8 @@ textarea:focus {
 /* ---- case threads ---- */
 
 .case {
-  position: relative;
-  padding: 22px 24px 8px;
   margin-bottom: 18px;
-  background: linear-gradient(180deg, var(--gunmetal-2), var(--gunmetal));
-  border: 1px solid var(--mesh);
-  border-radius: 8px;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 14px 30px -18px rgb(0 0 0 / 0.9);
+  padding: 16px 18px 6px;
 }
 
 .case-head {
@@ -1100,8 +1165,7 @@ textarea:focus {
 }
 
 .thread li.from-officer::before {
-  background: var(--plasma);
-  box-shadow: 0 0 6px rgb(255 138 0 / 0.6);
+  background: var(--glass);
 }
 
 .thread .who {
@@ -1135,7 +1199,7 @@ textarea:focus {
   align-items: center;
   gap: 8px;
   padding: 8px 0;
-  border-bottom: 1px solid rgb(58 61 66 / 0.55);
+  border-bottom: 1px solid #23252a;
 }
 
 .members .mono {
@@ -1149,11 +1213,94 @@ textarea:focus {
   }
 }
 
-.bank-sub {
-  display: block;
-  margin-top: 4px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: none;
-  color: var(--ink-3);
+/* Phone: headline, then the instrument, then the switch, all in the first screen. */
+@media (max-width: 760px) {
+  .board-page {
+    display: flex;
+    flex-direction: column;
+  }
+  .hero {
+    display: contents;
+  }
+  .hero-copy {
+    order: 1;
+    margin-bottom: 18px;
+  }
+  .board-page > .instrument {
+    order: 2;
+    flex-wrap: nowrap;
+    padding: 10px 0 8px;
+    margin-bottom: 18px;
+  }
+  .switch-panel {
+    order: 3;
+    margin-bottom: 28px;
+  }
+  .after-instrument {
+    order: 4;
+  }
+  .log {
+    order: 5;
+  }
+  .board-page > .readouts {
+    order: 6;
+  }
+  .provenance {
+    order: 7;
+  }
+  .board-page > .instrument .channel {
+    min-width: 0;
+    padding: 0 4px;
+  }
+  .board-page > .instrument .channel:nth-child(3) {
+    border-left: 1px solid #26282c;
+  }
+  .board-page > .instrument .tube {
+    width: 30px;
+  }
+  .board-page > .instrument .numeral {
+    font-size: 25px;
+  }
+  .board-page > .instrument .tubes {
+    gap: 3px;
+  }
+  .board-page > .instrument .channel-plate {
+    margin-top: 8px;
+    padding: 4px 3px 5px;
+  }
+  .board-page > .instrument .channel-label {
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+  }
+  .board-page > .instrument .channel-readout {
+    font-size: 10px;
+  }
+  .detail {
+    margin-top: 12px;
+  }
+}
+
+.switch-panel .short {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .switch-panel .long {
+    display: none;
+  }
+  .switch-panel .short {
+    display: inline;
+  }
+  .switch-panel h2 {
+    font-size: 21px;
+  }
+  .switch-panel p {
+    margin-bottom: 14px;
+  }
+  .switch-panel.plate {
+    padding: 10px 12px 12px;
+  }
+  .hero-copy h1 {
+    font-size: 38px;
+  }
 }

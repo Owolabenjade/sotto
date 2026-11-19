@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 190" width="100" height="190">
+  <!-- Provenance: authored by hand for Sotto (Apache-2.0), 2026-11-19. An empty IN-14 style nixie envelope; the numerals are live text laid over it. -->
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="44%" r="55%">
+      <stop offset="0" stop-color="#ff8a00" stop-opacity="0.18"/>
+      <stop offset="0.55" stop-color="#ff8a00" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#2a2c30"/>
+      <stop offset="0.14" stop-color="#121315"/>
+      <stop offset="0.82" stop-color="#0c0d0e"/>
+      <stop offset="1" stop-color="#26282c"/>
+    </linearGradient>
+    <linearGradient id="cap" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#2b2d31"/>
+      <stop offset="0.3" stop-color="#5c6168"/>
+      <stop offset="0.55" stop-color="#3a3d42"/>
+      <stop offset="1" stop-color="#1a1b1e"/>
+    </linearGradient>
+    <pattern id="hex" width="8.66" height="15" patternUnits="userSpaceOnUse">
+      <path d="M4.33 0 L8.66 2.5 L8.66 7.5 L4.33 10 L0 7.5 L0 2.5 Z M4.33 10 L4.33 15" fill="none" stroke="#8a8f96" stroke-opacity="0.32" stroke-width="0.7"/>
+    </pattern>
+    <clipPath id="inner">
+      <path d="M17 150 L17 52 A33 33 0 0 1 83 52 L83 150 Z"/>
+    </clipPath>
+  </defs>
+  <!-- envelope -->
+  <path d="M10 156 L10 50 A40 40 0 0 1 90 50 L90 156 Z" fill="url(#glass)"/>
+  <path d="M10 156 L10 50 A40 40 0 0 1 90 50 L90 156 Z" fill="url(#glow)"/>
+  <!-- anode mesh and posts -->
+  <rect x="17" y="18" width="66" height="132" fill="url(#hex)" clip-path="url(#inner)"/>
+  <line x1="21" y1="34" x2="21" y2="150" stroke="#6d7178" stroke-opacity="0.55" stroke-width="1.2"/>
+  <line x1="79" y1="34" x2="79" y2="150" stroke="#6d7178" stroke-opacity="0.55" stroke-width="1.2"/>
+  <ellipse cx="50" cy="150" rx="33" ry="3" fill="#000" fill-opacity="0.6"/>
+  <!-- glass outline and highlights -->
+  <path d="M10 156 L10 50 A40 40 0 0 1 90 50 L90 156" fill="none" stroke="#6b7077" stroke-opacity="0.7" stroke-width="1.3"/>
+  <path d="M17 140 L17 52 A33 33 0 0 1 36 22" fill="none" stroke="#ffffff" stroke-opacity="0.22" stroke-width="3" stroke-linecap="round"/>
+  <path d="M84 60 L84 118" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="66" cy="22" r="2.2" fill="#ffffff" fill-opacity="0.35"/>
+  <!-- metal cap -->
+  <rect x="8" y="154" width="84" height="20" rx="2" fill="url(#cap)"/>
+  <rect x="8" y="154" width="84" height="20" rx="2" fill="none" stroke="#0a0a0b" stroke-opacity="0.6"/>
+  <line x1="8" y1="161" x2="92" y2="161" stroke="#0a0a0b" stroke-opacity="0.45"/>
+  <line x1="8" y1="167" x2="92" y2="167" stroke="#ffffff" stroke-opacity="0.07"/>
+  <!-- pins -->
+  <g stroke="#8a8f96" stroke-width="2" stroke-linecap="round">
+    <line x1="26" y1="174" x2="26" y2="186"/>
+    <line x1="42" y1="174" x2="42" y2="186"/>
+    <line x1="58" y1="174" x2="58" y2="186"/>
+    <line x1="74" y1="174" x2="74" y2="186"/>
+  </g>
+</svg>

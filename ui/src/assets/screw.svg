@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="10" height="10">
+  <!-- Provenance: authored by hand for Sotto (Apache-2.0), 2026-11-19. Slotted screw head for switch plates. -->
+  <defs>
+    <radialGradient id="s" cx="38%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#8a8f96"/>
+      <stop offset="0.6" stop-color="#3a3d42"/>
+      <stop offset="1" stop-color="#1c1e21"/>
+    </radialGradient>
+  </defs>
+  <circle cx="5" cy="5" r="4.2" fill="url(#s)" stroke="#0b0c0d" stroke-width="0.8"/>
+  <line x1="2.6" y1="6.4" x2="7.4" y2="3.6" stroke="#121315" stroke-width="1"/>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" width="72" height="72">
+  <!-- Provenance: authored by hand for Sotto (Apache-2.0), 2026-11-19. Blackened-steel instrument housing for 9-slice border-image: deep bevel, four corner screws. -->
+  <defs>
+    <radialGradient id="screw" cx="38%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#7a7f86"/>
+      <stop offset="0.6" stop-color="#34373c"/>
+      <stop offset="1" stop-color="#17181a"/>
+    </radialGradient>
+    <linearGradient id="bevel" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#2c2e32"/>
+      <stop offset="0.08" stop-color="#18191b"/>
+      <stop offset="0.92" stop-color="#121314"/>
+      <stop offset="1" stop-color="#050506"/>
+    </linearGradient>
+  </defs>
+  <rect x="0.5" y="0.5" width="71" height="71" rx="9" fill="url(#bevel)" stroke="#45484d"/>
+  <rect x="7" y="7" width="58" height="58" rx="4" fill="#111214" stroke="#050506"/>
+  <path d="M9 7.8 H63" stroke="#ffffff" stroke-opacity="0.05"/>
+  <g>
+    <circle cx="13" cy="13" r="3.6" fill="url(#screw)" stroke="#050506" stroke-width="0.8"/>
+    <line x1="10.8" y1="14.4" x2="15.2" y2="11.6" stroke="#0c0d0e"/>
+    <circle cx="59" cy="13" r="3.6" fill="url(#screw)" stroke="#050506" stroke-width="0.8"/>
+    <line x1="56.8" y1="11.6" x2="61.2" y2="14.4" stroke="#0c0d0e"/>
+    <circle cx="13" cy="59" r="3.6" fill="url(#screw)" stroke="#050506" stroke-width="0.8"/>
+    <line x1="10.8" y1="57.6" x2="15.2" y2="60.4" stroke="#0c0d0e"/>
+    <circle cx="59" cy="59" r="3.6" fill="url(#screw)" stroke="#050506" stroke-width="0.8"/>
+    <line x1="56.8" y1="60.4" x2="61.2" y2="57.6" stroke="#0c0d0e"/>
+  </g>
+</svg>

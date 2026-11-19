@@ -21,16 +21,11 @@ import {
   type MemberCredential,
   type OfficerKeys,
 } from './keys';
-import { IconCheck, IconCopy, IconDownload, IconLock, IconSend } from './icons';
-import { Bank } from './tubes';
-import { WarmupBody } from './warmup';
+import { IconCheck, IconChevron, IconCopy, IconDownload, IconLock, IconSend } from './icons';
+import { Instrument, type Channel } from './tubes';
+import { DARK_COUNTER, FileSwitch, WarmupDesk, routeFromHash, type Route } from './warmup';
 
-type Route = 'clock' | 'report' | 'officer';
-
-const routeFromHash = (): Route => {
-  const h = window.location.hash.replace(/^#\/?/, '');
-  return h === 'report' || h === 'officer' ? h : 'clock';
-};
+const DEMO_ORG = (import.meta.env.VITE_DEMO_ORG ?? '1') === '1';
 
 const contractFromUrl = (): string => {
   const c = new URLSearchParams(window.location.search).get('c');
@@ -153,11 +148,23 @@ function Action(props: {
       </span>
       {err && (
         <span className="error" role="alert">
-          {err}
+          {recovery(err)}
         </span>
       )}
     </span>
   );
+}
+
+/** The failure in plain words plus what to do next; the raw message stays for support. */
+function recovery(err: string): string {
+  const next = /lace|wallet|connector|authori/i.test(err)
+    ? 'Open Lace, check it is on the Preview network and unlocked, then try again.'
+    : /proof|6300|prove/i.test(err)
+      ? 'Check that Docker Desktop is running the proof server, then try again.'
+      : /dust|fee|balance|insufficient/i.test(err)
+        ? 'Your Lace wallet needs tNIGHT and DUST for the fee: fund it from the Preview faucet, wait for DUST, then try again.'
+        : 'Wait a minute and try again.';
+  return `That didn't go through: ${err}. ${next}`;
 }
 
 /** A quick action with visible confirmation: the button flips to its done state for two seconds. */
@@ -257,7 +264,26 @@ const Status = ({ c }: { c: CaseView }) => {
 
 // ---- public board ----
 
-function Clock({ view, address, readAt }: { view: ChannelView; address: string; readAt: number | null }) {
+function Clock({ view, address, readAt }: { view: ChannelView | null; address: string; readAt: number | null }) {
+  // One tree for warm-up and loaded state: the instrument stays mounted, so the
+  // first ledger read lights the tubes with the cross-fade instead of a swap.
+  if (!view) {
+    return (
+      <section className="board-page">
+        <div className="hero">
+          <div className="hero-copy">
+            <h1>Warming up the counter.</h1>
+            <p className="detail" aria-live="polite">
+              Reading this channel from the public Midnight ledger. The tubes light as soon as it answers.
+            </p>
+          </div>
+          <FileSwitch />
+        </div>
+        <Instrument channels={DARK_COUNTER} label="Response counter, warming up" busy />
+      </section>
+    );
+  }
+
   const acked = view.ackOnTime + view.ackLate;
   const behind = view.ackLate + view.overdue;
   const waiting = view.cases.filter((c) => c.status === 'open' && c.ackDue >= nowSecs());
@@ -273,52 +299,54 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
           ? ['No late reports.', `${plural(waiting.length, 'report is', 'reports are')} waiting for acknowledgement. The next is due in ${fmtSpanLong(nextDue - nowSecs())}.`]
           : ['Every report answered on time.', `${plural(view.cases.length, 'report', 'reports')}, all acknowledged within ${fmtSpanLong(view.ackSecs)}.`];
 
+  const channels: Channel[] = [
+    { id: 'reports', label: 'Reports received', value: view.cases.length, places: 2, spoken: `Reports received: ${view.cases.length}` },
+    {
+      id: 'ontime',
+      label: 'Acknowledged on time',
+      readout: `${acked > 0 ? `of ${acked} · ` : ''}within ${fmtSpanLong(view.ackSecs)}`,
+      value: view.ackOnTime,
+      places: 2,
+      spoken: `Acknowledged within ${fmtSpanLong(view.ackSecs)}: ${view.ackOnTime}${acked > 0 ? ` of ${acked}` : ''}`,
+    },
+    {
+      id: 'overdue',
+      label: 'Overdue now',
+      value: view.overdue,
+      places: 1,
+      spoken: `Overdue now: ${view.overdue}`,
+      tone: view.overdue > 0 ? 'late' : undefined,
+    },
+    {
+      id: 'days',
+      label: daysToNext === null ? 'No deadline running' : 'Days to next deadline',
+      value: daysToNext,
+      places: 1,
+      spoken: daysToNext === null ? 'No acknowledgement deadline running' : `Days to the next acknowledgement deadline: ${daysToNext}`,
+    },
+  ];
+
   return (
     <section className="board-page">
       <div className="hero">
         <div className="hero-copy">
           <h1>{headline}</h1>
           <p className="detail">{detail}</p>
-          <p className="lede">
-            Every number on this counter is read from the public Midnight ledger. Nobody, {view.orgName} included, can see who filed a report or
-            what it says. Anyone can see whether it was answered in time.
-          </p>
         </div>
-        <aside className="panel switch-panel" aria-labelledby="file-title">
-          <h2 id="file-title">Seen something at {view.orgName}?</h2>
-          <p>File a sealed report. It proves you work here without saying who you are, and only the compliance officer can read it.</p>
-          <a className="btn" href="#/report">
-            <IconLock />
-            <span>File a report</span>
-          </a>
-          <p className="switch-note">Takes two to three minutes with the Lace wallet.</p>
-        </aside>
+        <FileSwitch org={view.orgName} />
       </div>
 
-      <div className="banks" role="group" aria-label="Response counter">
-        <Bank value={view.cases.length} label="Reports received" spoken={`Reports received: ${view.cases.length}`} />
-        <Bank
-          value={view.ackOnTime}
-          label={
-            <>
-              Acknowledged on time
-              <span className="bank-sub">
-                {acked > 0 ? `of ${acked} · ` : ''}within {fmtSpanLong(view.ackSecs)}
-              </span>
-            </>
-          }
-          spoken={`Acknowledged within ${fmtSpanLong(view.ackSecs)}: ${view.ackOnTime}${acked > 0 ? ` of ${acked}` : ''}`}
-        />
-        <Bank value={view.overdue} label="Overdue now" spoken={`Overdue now: ${view.overdue}`} tone={view.overdue > 0 ? 'late' : undefined} />
-        <Bank
-          value={daysToNext}
-          label={daysToNext === null ? 'No deadline running' : 'Days to the next deadline'}
-          spoken={daysToNext === null ? 'No acknowledgement deadline running' : `Days to the next acknowledgement deadline: ${daysToNext}`}
-        />
-      </div>
+      <Instrument channels={channels} label="Response counter" />
 
-      <section className="panel cases-panel" aria-labelledby="cases-title">
-        <h2 id="cases-title">Cases on this channel</h2>
+      <p className="lede after-instrument">
+        Every number on this counter is read from the public Midnight ledger. Nobody, {view.orgName} included, can see who filed a report or what
+        it says. Anyone can see whether it was answered in time.
+      </p>
+
+      <section className="log" aria-labelledby="cases-title">
+        <h2 id="cases-title" className="engraved">
+          Cases on this channel
+        </h2>
         {view.cases.length === 0 ? (
           <p className="empty">No reports yet.</p>
         ) : (
@@ -363,9 +391,11 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
         )}
       </section>
 
-      <div className="split-panels">
-        <section className="panel" aria-labelledby="pub">
-          <h2 id="pub">On the counter, for anyone</h2>
+      <div className="readouts">
+        <section aria-labelledby="pub">
+          <h2 id="pub" className="engraved">
+            On the counter, for anyone
+          </h2>
           <ul>
             <li>When each report arrived, proved to within 15 minutes of block time</li>
             <li>When it was acknowledged and closed, and whether that was on time</li>
@@ -373,14 +403,20 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
             <li>Fingerprints of registered members, and how many were revoked</li>
           </ul>
         </section>
-        <section className="panel" aria-labelledby="sealed">
-          <h2 id="sealed">Sealed, for nobody else</h2>
+        <section aria-labelledby="sealed">
+          <h2 id="sealed" className="engraved">
+            Sealed, for nobody else
+          </h2>
           <ul>
             <li>Which member filed a report</li>
             <li>What any report or reply says</li>
             <li>A member’s secret, which never leaves their browser</li>
             <li>Whether two reports in different 30-day periods came from the same person</li>
           </ul>
+          <p className="planned">
+            <span className="planned-tag">Planned</span> The organisation pays each fee (I-012). Today the fee comes from the reporter’s own Lace
+            wallet, which can link that wallet’s reports to each other.
+          </p>
         </section>
       </div>
 
@@ -388,7 +424,7 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
         {plural(view.enrolled, 'current member', 'current members')}
         {view.revoked > 0 ? `, ${view.revoked} revoked` : ''}. Read from Midnight {NETWORK}
         {readAt ? ` at ${new Date(readAt * 1000).toLocaleTimeString()}` : ''}, contract <span className="mono">{shortId(address)}</span>. The counter
-        refreshes every 20 seconds. Acme Logistics GmbH is a demo organisation.
+        refreshes every 20 seconds.{DEMO_ORG ? ` ${view.orgName} is a demo organisation.` : ''}
       </p>
     </section>
   );
@@ -434,25 +470,49 @@ const LaceNote = () => (
     <span>
       When Lace asks you to approve, it shows the transaction’s public part: the case number, the times and your text as scrambled ciphertext.
       That is exactly what the board will show anyone. Your credential and your words are not in it.
+      <span className="planned">
+        <span className="planned-tag">Planned</span> The organisation pays the fee (I-012). Today your own Lace wallet pays it, which can link
+        your reports to that wallet. A fresh wallet used only for Sotto keeps that link away from the rest of your activity.
+      </span>
     </span>
   </p>
 );
 
-function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; address: string; refresh: () => Promise<void> }) {
-  const [cred, setCred] = useState<MemberCredential | null>(loadMember);
-  const [text, setText] = useState('');
+/** What a member's actions put on the public ledger, set beside the first step (Product Principle 1). */
+const ExposureReadout = () => (
+  <div className="readouts stacked">
+    <section aria-labelledby="r-pub">
+      <h2 id="r-pub" className="engraved">
+        Public, for anyone
+      </h2>
+      <ul>
+        <li>Your member key, once the officer registers it</li>
+        <li>When a report arrived and when it was answered</li>
+      </ul>
+    </section>
+    <section aria-labelledby="r-sealed">
+      <h2 id="r-sealed" className="engraved">
+        Sealed, for nobody else
+      </h2>
+      <ul>
+        <li>Your credential: it never leaves this browser</li>
+        <li>Which reports are yours</li>
+        <li>What you write: only the compliance officer can read it</li>
+      </ul>
+    </section>
+  </div>
+);
+
+/** The Report screen before a credential exists. Needs no ledger data, so it renders at once. */
+function ReportIntro({ onCred }: { onCred: (c: MemberCredential) => void }) {
   const [importing, setImporting] = useState('');
   const [importErr, setImportErr] = useState<string | null>(null);
-  const [confirmRemove, setConfirmRemove] = useState(false);
-
-  useEffect(() => {
-    if (cred) prefetchKeys(['fileReport', 'reporterMessage']);
-  }, [cred]);
-
-  if (!cred) {
+  const setCred = onCred;
     return (
-      <section className="work narrow">
+      <section className="work">
         <h1>Report as a verified insider</h1>
+        <div className="work-grid">
+        <div className="plate desk-plate">
         <ol className="steps">
           <li>
             <strong>Create a credential.</strong> A secret made in this browser. It never leaves it.
@@ -469,7 +529,10 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
           Create my credential
         </Action>
         <details className="aside">
-          <summary>I already have a credential (restore from my backup file)</summary>
+          <summary>
+            <IconChevron />
+            I already have a credential (restore from my backup file)
+          </summary>
           <Field
             label="Credential"
             hint="Open your sotto-credential.txt backup file, copy the 64 characters inside and paste them here."
@@ -492,12 +555,28 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
           </button>
           {importErr && (
             <p className="error" role="alert">
-              {importErr}
+              {importErr}. Check that you pasted all 64 characters from the backup file.
             </p>
           )}
         </details>
+        </div>
+        <ExposureReadout />
+        </div>
       </section>
     );
+}
+
+function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; address: string; refresh: () => Promise<void> }) {
+  const [cred, setCred] = useState<MemberCredential | null>(loadMember);
+  const [text, setText] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState(false);
+
+  useEffect(() => {
+    if (cred) prefetchKeys(['fileReport', 'reporterMessage']);
+  }, [cred]);
+
+  if (!cred) {
+    return <ReportIntro onCred={setCred} />;
   }
 
   const enrolled = l.memberKeys.member(hexToBytes(cred.memberKeyHex));
@@ -724,28 +803,53 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
 
   if (!keys) {
     return (
-      <section className="work narrow">
+      <section className="work">
         <h1>Officer desk</h1>
-        <p className="lede">Load the officer key file for this channel. The keys stay in this browser.</p>
-        <Field label="Officer key file" hint='JSON with "secretKey" and "boxSecretKey".' rows={6} value={keyFile} onChange={setKeyFile} mono />
-        <button
-          type="button"
-          className="btn"
-          onClick={() => {
-            try {
-              setKeys(saveOfficer(keyFile));
-            } catch (e) {
-              setKeyErr(e instanceof Error ? e.message : String(e));
-            }
-          }}
-        >
-          Load officer keys
-        </button>
-        {keyErr && (
-          <p className="error" role="alert">
-            Couldn't read the key file: {keyErr}
-          </p>
-        )}
+        <div className="work-grid">
+          <div className="plate desk-plate">
+            <p className="lede spaced">Load the officer key file for this channel. The keys stay in this browser.</p>
+            <Field label="Officer key file" hint='JSON with "secretKey" and "boxSecretKey".' rows={6} value={keyFile} onChange={setKeyFile} mono />
+            <button
+              type="button"
+              className="switch"
+              onClick={() => {
+                try {
+                  setKeys(saveOfficer(keyFile));
+                } catch (e) {
+                  setKeyErr(e instanceof Error ? e.message : String(e));
+                }
+              }}
+            >
+              Load officer keys
+            </button>
+            {keyErr && (
+              <p className="error" role="alert">
+                Couldn't read the key file: {keyErr}. Paste the whole JSON file, including the braces.
+              </p>
+            )}
+          </div>
+          <div className="readouts stacked">
+            <section aria-labelledby="o-desk">
+              <h2 id="o-desk" className="engraved">
+                At this desk
+              </h2>
+              <ul>
+                <li>Register employees by member key, and revoke leavers</li>
+                <li>Acknowledge each report within 7 days</li>
+                <li>Ask follow-up questions; give feedback within 3 months</li>
+              </ul>
+            </section>
+            <section aria-labelledby="o-never">
+              <h2 id="o-never" className="engraved">
+                Never at this desk
+              </h2>
+              <ul>
+                <li>Who filed a report</li>
+                <li>Any employee's credential</li>
+              </ul>
+            </section>
+          </div>
+        </div>
       </section>
     );
   }
@@ -753,10 +857,32 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
   const members = Array.from(l.memberKeys as unknown as Iterable<Uint8Array>);
   const waiting = view.cases.filter((c) => c.status === 'open');
   const valid = /^[0-9a-f]{64}$/i.test(newMember.trim());
+  const oldestDue = waiting.length > 0 ? Math.min(...waiting.map((c) => c.ackDue)) : null;
+  const daysToOldest = oldestDue !== null ? Math.max(0, Math.ceil((oldestDue - nowSecs()) / DAY)) : null;
+  const desk: Channel[] = [
+    { id: 'waiting', label: 'Waiting', value: waiting.length, places: 1, spoken: `Waiting for acknowledgement: ${waiting.length}` },
+    {
+      id: 'overdue',
+      label: 'Overdue',
+      value: view.overdue,
+      places: 1,
+      spoken: `Overdue: ${view.overdue}`,
+      tone: view.overdue > 0 ? 'late' : undefined,
+    },
+    {
+      id: 'days',
+      label: daysToOldest === null ? 'No deadline running' : 'Days to oldest deadline',
+      value: daysToOldest,
+      places: 1,
+      spoken: daysToOldest === null ? 'No deadline running' : `Days to the oldest acknowledgement deadline: ${daysToOldest}`,
+    },
+    { id: 'members', label: 'Members', value: view.enrolled, places: 2, spoken: `Registered members: ${view.enrolled}` },
+  ];
 
   return (
     <section className="work">
       <h1>Officer desk</h1>
+      <Instrument channels={desk} label="Officer counter" />
       <p className={`notice${view.overdue > 0 ? ' alarm' : ''}`} role="status">
         {waiting.length === 0
           ? 'Nothing waiting for acknowledgement.'
@@ -838,7 +964,8 @@ function LiveClock() {
 export default function App() {
   const [route, setRoute] = useState<Route>(routeFromHash);
   const [address] = useState(contractFromUrl);
-  const { l, view, error, loading, readAt, refresh } = useChannel(address);
+  const { l, view, error, readAt, refresh } = useChannel(address);
+  const [hasCred, setHasCred] = useState(() => loadMember() !== null);
 
   useEffect(() => {
     const on = () => {
@@ -865,7 +992,12 @@ export default function App() {
           <span className="mark" aria-hidden="true" />
           Sotto
         </a>
-        {view && <span className="station">{view.orgName}</span>}
+        {view && (
+          <span className="station">
+            {view.orgName}
+            {DEMO_ORG && <span className="demo-tag">Demo organisation</span>}
+          </span>
+        )}
         <nav aria-label="Sections">
           {nav('clock', 'Counter')}
           {nav('report', 'Report')}
@@ -888,13 +1020,9 @@ export default function App() {
             </Action>
           </div>
         )}
-        {address && !l && !error && route === 'clock' && <WarmupBody />}
-        {address && !l && !error && route !== 'clock' && (
-          <p className="loading" aria-live="polite">
-            {loading ? 'Reading the channel from the Midnight ledger…' : ''}
-          </p>
-        )}
-        {l && view && route === 'clock' && <Clock view={view} address={address} readAt={readAt} />}
+        {address && route === 'clock' && (l || !error) && <Clock view={view} address={address} readAt={readAt} />}
+        {address && !l && !error && route === 'report' && !hasCred && <ReportIntro onCred={() => setHasCred(true)} />}
+        {address && !l && !error && route !== 'clock' && !(route === 'report' && !hasCred) && <WarmupDesk route={route} />}
         {l && view && route === 'report' && <Report l={l} view={view} address={address} refresh={refresh} />}
         {l && view && route === 'officer' && <Officer l={l} view={view} address={address} refresh={refresh} />}
       </main>

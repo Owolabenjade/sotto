@@ -48,6 +48,12 @@ export const IconLock = () => (
   </Svg>
 );
 
+export const IconChevron = () => (
+  <Svg>
+    <path d="m9 18 6-6-6-6" />
+  </Svg>
+);
+
 export const IconSend = () => (
   <Svg>
     <path d="m22 2-7 20-4-9-9-4Z" />

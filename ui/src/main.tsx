@@ -6,6 +6,7 @@ import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { WarmupPage } from './warmup';
 import { contractFromLocation, prefetchState } from './prefetch';
+import './fonts.css';
 import './styles.css';
 
 // Ask the indexer for the channel now, while the runtime downloads.
