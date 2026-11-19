@@ -20,7 +20,7 @@ import { getConfig } from '../src/config.js';
 import { buildProviders, ledgerState, type SottoCircuits } from '../src/providers.js';
 import { createSottoPrivateState } from '../contract/witnesses.js';
 import { CompiledSottoContract, ledger, zkConfigPath } from '../contract/index.js';
-import { bytesToHex, hexToBytes, messageKey, open } from '../src/crypto.js';
+import { bytesToHex, hexToBytes, messageKey, open, seal } from '../src/crypto.js';
 
 // @ts-expect-error WebSocket global for the indexer client
 globalThis.WebSocket = WebSocket;
@@ -65,6 +65,17 @@ const main = async () => {
   } else if (cmd === 'ack') {
     await call('acknowledge', [hexToBytes(arg!), stampNow()]);
     console.log(`Acknowledged ${arg}`);
+  } else if (cmd === 'ask') {
+    const text = process.argv.slice(4).join(' ');
+    if (!arg || !text) throw new Error('Usage: officer.ts ask <caseId> <question text>');
+    const id = hexToBytes(arg);
+    const c = (await read()).cases.lookup(id);
+    const blob = seal(text, c.reporterBox, { contractAddress: address, caseId: id, seq: Number(c.messageCount) });
+    await call('officerMessage', [id, stampNow(), blob]);
+    console.log(`Sent message ${c.messageCount} on ${arg}`);
+  } else if (cmd === 'close') {
+    await call('closeCase', [hexToBytes(arg!), stampNow()]);
+    console.log(`Closed ${arg}`);
   } else if (cmd === 'cases') {
     const l = await read();
     for (const [id, c] of l.cases) {
@@ -78,7 +89,7 @@ const main = async () => {
       }
     }
   } else {
-    throw new Error('Commands: enrol <memberKey> | cases | ack <caseId>');
+    throw new Error('Commands: enrol <memberKey> | cases | ack <caseId> | ask <caseId> <text> | close <caseId>');
   }
   await w.stop();
 };

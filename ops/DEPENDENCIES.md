@@ -18,7 +18,7 @@ Version source: https://docs.midnight.network/relnotes/support-matrix.md (read 2
 | Local devnet via compose.yml (node 2.1.101, indexer 4.4.101) | images pinned | critical (tests) | 2026-11-18T00:20Z | E-004 | verified | midnight-local-dev is archived; compose.yml copied from midnight-examples (9c354d6). Image pulls can fail with short read: retry |
 | Midnight Preview network (RPC + indexer) | rpc.preview.midnight.network, indexer api/v4 | critical (public demo) | 2026-11-18T13:14Z | E-008 | verified | Chain relaunched 2026-11-07; may reset. Fresh wallet sync about 4 min; RPC prints harmless WebSocket reconnect errors |
 | Preview faucet | midnight-tmnight-preview.nethermind.dev | critical | 2026-11-18T12:25Z | E-008 | verified | Cloudflare check: a human must request. 5,000 tNIGHT per request. DUST reaches 60 in about 25 min |
-| Lace wallet (Midnight, DApp connector 4.1.0) | | critical (UI) | | | unverified | Needs the local proof server setting |
+| Lace wallet (Midnight, DApp connector v4) | human's install, version not recorded | critical (UI) | 2026-11-19T10:45Z | E-009 | verified | Injects under a random window.midnight key (rdns io.lace.wallet); match connector API major 4. Needs Docker proof server on localhost:6300. Proof plus submit about 2-3 min |
 | DUST sponsorship / relayer pays fees | | optional (anonymity hardening) | | | unverified | Without it the fee payer can link the reporter; disclose |
 | Hosting for the UI (Vercel static deploy) | Vercel CLI 65.15.0 | critical (public URL) | 2026-11-18T12:46Z | E-005 | verified | 134 MB upload accepted; 45 MB key served. Production alias https://sotto-ivory.vercel.app |
 

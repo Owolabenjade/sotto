@@ -5,7 +5,7 @@ Status: todo | doing | blocked | done | parked | cut
 
 | ID | Title | Owner | Status | Milestone | Done when | Evidence |
 |---|---|---|---|---|---|---|
-| I-001 | Verify critical dependencies | agent | doing | M1 | Every critical row in DEPENDENCIES is verified with evidence | E-001, E-003, E-004, E-005, E-008 (left: Lace) |
+| I-001 | Verify critical dependencies | agent | done | M1 | Every critical row in DEPENDENCIES is verified with evidence | E-001, E-003, E-004, E-005, E-008, E-009 |
 | I-002 | Create public GitHub repo with topic midnightntwrk, push | human | done | M1 | Repo public; topic visible on GitHub | GitHub API 2026-11-18: topics ["midnightntwrk"] (description and website still empty) |
 | I-003 | Scaffold contract + TS API + UI on ledger 9 versions | agent | done | M1 | `npm install` and build succeed at pinned versions | E-003, E-004 |
 | I-004 | Sotto contract v1 + Compact simulator tests | agent | done | M1 | Tests pass: member files, non-member rejected, double report rejected | E-003 |
@@ -17,5 +17,5 @@ Status: todo | doing | blocked | done | parked | cut
 | I-010 | Slide deck | agent | todo | M4 | Deck link in SUBMISSION | |
 | I-011 | Attribute proofs (department, seniority) | | parked | | | |
 | I-012 | DUST sponsorship so the reporter's wallet never pays (private-party pattern) | agent | todo | M2 | Report filed from a zero-balance wallet with fees paid by the org sponsor | |
-| I-014 | Test filing, thread and officer actions from the browser with Lace on Preview | human + agent | todo | M2 | A report filed and answered through the live site | |
+| I-014 | Test filing, thread and officer actions from the browser with Lace on Preview | human + agent | doing | M2 | A report filed and answered through the live site | E-009 (filed and acknowledged; reporter reply pending) |
 | I-013 | README as proof (setup, architecture, privacy model, how to test) | agent | todo | M4 | presubmit passes the README checks | |

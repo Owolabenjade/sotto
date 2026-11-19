@@ -86,3 +86,12 @@ Method: `MIDNIGHT_NETWORK=preview npx vite-node scripts/preview-setup.ts` (offic
 Result: Deployed at 0b0a90a00567eb69d1a8338e396a283c3d0a98e47067ec7824c818bf5deb17a1 (deploy tx 2ef2562236382c1631fd268cdccc9c41b85cc1946c1610cf49737f52401a2d22, block 165240). Enrolled 5 members; member 3 filed a sealed report from the BOB wallet: case 655f2b093d4669ed94c3a2691218b694400136a9880a40299aef78a98fce74b0; ledger enrolled=5, cases=1. The page shows "Reports received 1", the case "due in 7 days, Awaiting acknowledgement", and the public/never-public section; console showed no errors after load.
 Label: OBSERVED
 Limits: First run failed with "Failed to connect to Proof Server" because Docker Desktop had closed (no deploy happened); rerun succeeded. Browser filing via Lace not yet tested. Fees for the demo report were paid by a script wallet, not sponsored.
+
+## E-009: A report filed through Lace in a real browser on Preview, read and answered by the officer
+Date (UTC): 2026-11-19T10:45Z
+Commit: 7a09dbc (deployed UI) plus uncommitted scripts/officer.ts ask/close commands
+Environment: The human's own browser with Lace on Midnight Preview, local proof server 9.0.0 in Docker; site https://sotto-ivory.vercel.app (build from 7a09dbc); officer actions via scripts/officer.ts in the WSL native copy
+Method: Human created a credential on /#/report and sent only the member key; officer enrolled it (`officer.ts enrol eb431298…d66496`, members 5 to 6). Human filed a report with "Seal and file report"; screenshots show the steps "Lace is generating the zero-knowledge proof… · 69s" and "Accepted. Reading the updated ledger · 165s", then case 4e3e69…9664 "Awaiting acknowledgement, due in 7 days". Officer ran `officer.ts cases`, `ack`, `ask`.
+Result: Officer decrypted the browser-sealed text from the ledger: "Overtime hours on the loading dock are recorded as breaks." Case 4e3e698b830b1fc0f765df9e0b2b2395799d904c141aae3138b35b8184509664 acknowledged (64.5s run) and message 1 sent sealed to the case's reporter box.
+Label: OBSERVED (browser side from the human's screenshots; officer side run here)
+Limits: First attempt failed at wallet discovery ("No Midnight wallet found"); fixed in 7a09dbc by matching the connector API major version and rdns, as the Midnight docs describe. The reporter's own Lace wallet paid the fee (I-012). Which proof path Lace used (its own getProvingProvider or the localhost fallback) was not logged. Lace version not recorded.
