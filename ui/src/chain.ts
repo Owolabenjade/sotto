@@ -17,7 +17,7 @@ import {
   type MidnightProviders,
 } from '@midnight-ntwrk/midnight-js-types';
 import { type NetworkId, setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
-import semver from 'semver';
+import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { inMemoryPrivateStateProvider } from './in-memory-private-state-provider';
 import { CompiledSottoContract, createSottoPrivateState } from '../../contract/browser';
 import { NETWORK } from './ledger';
@@ -35,12 +35,25 @@ type Providers = MidnightProviders<any>;
 
 let providers: Promise<Providers> | undefined;
 
-const findWallet = (): InitialAPI | undefined => {
+// Wallet discovery as the Midnight docs describe it: current Lace builds inject
+// under a random key in window.midnight (no fixed `mnLace`) with rdns
+// io.lace.wallet, so scan every entry and match on the connector API major
+// version, preferring Lace.
+type Injected = InitialAPI & { rdns?: string; name?: string };
+const SUPPORTED_API_MAJOR = 4;
+const LOCAL_PROOF_SERVER = 'http://localhost:6300';
+
+const injectedWallets = (): Injected[] => {
   const w = (window as unknown as { midnight?: Record<string, unknown> }).midnight;
-  if (!w) return undefined;
-  return Object.values(w).find(
-    (x): x is InitialAPI => !!x && typeof x === 'object' && 'apiVersion' in x && semver.satisfies((x as InitialAPI).apiVersion, '4.x'),
-  );
+  if (!w) return [];
+  return Object.values(w).filter((x): x is Injected => !!x && typeof x === 'object' && 'apiVersion' in x);
+};
+
+const majorOf = (v: unknown): number => Number(String(v).replace(/^v/, '').split('.')[0]);
+
+const findWallet = (): Injected | undefined => {
+  const ok = injectedWallets().filter((x) => majorOf(x.apiVersion) === SUPPORTED_API_MAJOR);
+  return ok.find((x) => x.rdns === 'io.lace.wallet') ?? ok[0];
 };
 
 export const walletAvailable = (): boolean => findWallet() !== undefined;
@@ -48,7 +61,16 @@ export const walletAvailable = (): boolean => findWallet() !== undefined;
 async function connect(): Promise<ConnectedAPI> {
   for (let i = 0; i < 30 && !findWallet(); i++) await new Promise((r) => setTimeout(r, 100));
   const initial = findWallet();
-  if (!initial) throw new Error('No Midnight wallet found. Install Lace and switch it to the Preview network.');
+  if (!initial) {
+    const seen = injectedWallets().map((x) => `${x.name ?? x.rdns ?? 'unnamed wallet'} (connector API ${x.apiVersion})`);
+    console.info('[sotto] window.midnight entries:', seen);
+    throw new Error(
+      seen.length === 0
+        ? 'No Midnight wallet is injected into this page. Check that Lace is installed in this browser and allowed on this site, then reload.'
+        : `Found ${seen.join(', ')}, but Sotto needs DApp connector API ${SUPPORTED_API_MAJOR}.x. Update Lace and reload.`,
+    );
+  }
+  console.info('[sotto] connecting to', initial.name ?? initial.rdns, 'connector API', initial.apiVersion);
   return initial.connect(NETWORK);
 }
 
@@ -61,7 +83,12 @@ async function build(): Promise<Providers> {
   return {
     privateStateProvider: inMemoryPrivateStateProvider(),
     zkConfigProvider,
-    proofProvider: await dappConnectorProofProvider(api, zkConfigProvider, ledgerV9.CostModel.initialCostModel()),
+    // Lace 2.1.0+ proves through getProvingProvider(); older builds lack it, and
+    // the docs say to fall back to the local proof server then.
+    proofProvider:
+      typeof (api as { getProvingProvider?: unknown }).getProvingProvider === 'function'
+        ? await dappConnectorProofProvider(api, zkConfigProvider, ledgerV9.CostModel.initialCostModel())
+        : httpClientProofProvider(LOCAL_PROOF_SERVER, zkConfigProvider),
     publicDataProvider: indexerPublicDataProvider(
       config.indexerUri,
       config.indexerWsUri,
