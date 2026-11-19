@@ -1,6 +1,6 @@
 # Sotto: anonymous insider reports, with a response clock anyone can verify
 
-**[Live response clock](https://sotto-ivory.vercel.app)** (Midnight Preview, no wallet needed) · **Contract:** [`0b0a90a0…eb17a1`](deployments/preview.json) on Preview · **Video:** _recording before the deadline_ · **Deck:** _in progress_
+**[Live response clock](https://sotto-ivory.vercel.app)** (Midnight Preview, no wallet needed) · **Contract:** [`078fa4f3…814624`](deployments/preview.json) on Preview · **Video:** _recording before the deadline_ · **Deck:** _in progress_
 
 Sotto is a whistleblowing channel on [Midnight](https://midnight.network). An employee proves, in zero knowledge, that they are a current member of the organisation's registry and files a report that nobody can trace back to them. The compliance officer answers through an encrypted two-way thread. Every acknowledgement and closure is timestamped on the public ledger, so anyone can check that the channel is actually answered, without seeing a single report.
 
@@ -45,7 +45,7 @@ EU law requires private companies with 50 or more workers to run an internal rep
 |---|---|---|
 | Compact contract with private witnesses | [`contract/sotto.compact`](contract/sotto.compact), [`contract/witnesses.ts`](contract/witnesses.ts) | The membership proof and the authorship proof run on secrets that never leave the user's device |
 | Public and private state together | `cases`, counters (public) vs `secretKey` witness (private) | The response clock is public; who reported is not |
-| `MerkleTree`, `persistentHash`, nullifiers | `members`, `caseNullifier`, `reporterTag` | Anonymous membership, one report per period, revocation |
+| `MerkleTree`, `transientHash`, nullifiers | `members`, `caseNullifier`, `reporterTag` | Anonymous membership, one report per period, revocation. `transientHash` (circuit-friendly) instead of `persistentHash` (SHA-256) made the circuits 4 to 12 times smaller (E-010) |
 | `blockTimeGte` / `blockTimeLt` | `stamp()` in the contract | Deadlines on the public clock are bound to block time |
 | `Opaque<"Uint8Array">` ledger values | `messages` | Encrypted thread stored on chain, readable only by its recipient |
 | Midnight.js 5, Wallet SDK 2, DApp connector (Lace) | [`src/`](src/), [`ui/src/chain.ts`](ui/src/chain.ts) | Proving, balancing and submitting transactions |
@@ -56,8 +56,9 @@ EU law requires private companies with 50 or more workers to run an internal rep
 |---|---|---|
 | Contract compiles with Compact 0.36.0 (7 circuits, with prover and verifier keys) | OK | `ops/EVIDENCE.md` E-004 |
 | Simulator suite: every guard, the response clock, the thread, revocation, and "no secret in public state" checks | 30 / 30 passed | E-003, E-007 |
-| Midnight Preview: contract deployed (tx `2ef25622…2d22`, block 165,240), 5 members enrolled, a sealed report filed by a member from a separate fee-paying wallet, read by the public page | OK | E-008 |
-| Local devnet, real proofs and transactions: deploy, enrol 3, anonymous sealed report read by the officer, duplicate report rejected, on-time acknowledgement, two-way thread, revoked member rejected | 6 / 6 passed | E-004 |
+| Midnight Preview: contract deployed, 5 members enrolled, a sealed report filed by a member from a separate fee-paying wallet, read by the public page (first deployment `0b0a90a0…eb17a1`, redeployed as `078fa4f3…814624` with the faster circuits) | OK | E-008, E-010 |
+| Local devnet, real proofs and transactions: deploy, enrol 3, anonymous sealed report read by the officer, duplicate report rejected, on-time acknowledgement, two-way thread, revoked member rejected | 6 / 6 passed; filing a report 26.8 s, a three-message exchange 56.2 s (one run each) | E-004, E-010 |
+| Browser, the user's own Lace wallet on Preview: credential created, member key registered, report filed, acknowledged, officer question decrypted in the browser, reply sent | OK | E-009 |
 
 ## Try it
 
