@@ -26,8 +26,12 @@ export type Channel = {
   /** Stable id: the same channel keeps its tubes across renders, so values cross-fade. */
   id: string;
   label: string;
+  /** Phone label, when the full one would wrap. */
+  short?: string;
   /** The sub-readout under the plate, e.g. "of 2 · within 7 days". */
   readout?: ReactNode;
+  /** Phone readout. */
+  readoutShort?: ReactNode;
   value: number | null;
   /** Minimum tube count; more tubes appear when the value needs them. */
   places?: number;
@@ -48,8 +52,16 @@ function ChannelView({ c }: { c: Channel }) {
         ))}
       </div>
       <div className="channel-plate" aria-hidden="true">
-        <span className="channel-label">{c.label}</span>
-        {c.readout && <span className="channel-readout">{c.readout}</span>}
+        <span className="channel-label">
+          <span className="full">{c.label}</span>
+          <span className="short">{c.short ?? c.label}</span>
+        </span>
+        {c.readout && (
+          <span className="channel-readout">
+            <span className="full">{c.readout}</span>
+            <span className="short">{c.readoutShort ?? c.readout}</span>
+          </span>
+        )}
       </div>
     </div>
   );

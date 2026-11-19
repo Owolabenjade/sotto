@@ -1,0 +1,715 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-19T12:50:49Z",
+  "title": "Design System: Sotto",
+  "extensions": {
+    "colorMeta": {
+      "chassis": {
+        "role": "neutral",
+        "displayName": "Blackened Warm Steel",
+        "canonical": "#0f0e0d",
+        "oklch": "oklch(16.5% 0.003 67.6)",
+        "description": "The chassis: page ground, html background and scrollbar track.",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242423",
+          "#403f3f",
+          "#5e5d5c",
+          "#7e7d7b",
+          "#9f9e9d",
+          "#c8c7c6",
+          "#efeeee"
+        ]
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "Recess Black",
+        "canonical": "#0b0b0b",
+        "oklch": "oklch(15.0% 0.000 0)",
+        "description": "Wells set below the ground: inputs, the key well, the network badge, the Lace note.",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#7d7d7d",
+          "#9e9e9e",
+          "#c7c7c7",
+          "#eeeeee"
+        ]
+      },
+      "housing": {
+        "role": "neutral",
+        "displayName": "Housing Black",
+        "canonical": "#111214",
+        "oklch": "oklch(18.2% 0.004 264.5)",
+        "description": "The instrument housing fill behind the tubes.",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#232425",
+          "#3f4041",
+          "#5c5e60",
+          "#7c7d80",
+          "#9d9ea1",
+          "#c6c7c9",
+          "#eeeef0"
+        ]
+      },
+      "plate": {
+        "role": "neutral",
+        "displayName": "Gunmetal",
+        "canonical": "#202327",
+        "oklch": "oklch(25.5% 0.009 255.6)",
+        "description": "The fill of every drawn plate: switch panel, desk plates, credential, case plates.",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232426",
+          "#3d4043",
+          "#5b5e62",
+          "#7a7e82",
+          "#9b9fa4",
+          "#c4c7cb",
+          "#edeff1"
+        ]
+      },
+      "mesh": {
+        "role": "neutral",
+        "displayName": "Anode Mesh",
+        "canonical": "#3a3d42",
+        "oklch": "oklch(35.9% 0.010 260.7)",
+        "description": "Hairlines: top-plate rule, engraved-heading rules, table header rule, field and notice borders.",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232426",
+          "#3e4044",
+          "#5b5e63",
+          "#7a7d83",
+          "#9b9fa4",
+          "#c5c7cc",
+          "#edeef1"
+        ]
+      },
+      "rule-faint": {
+        "role": "neutral",
+        "displayName": "Row Rule",
+        "canonical": "#23252a",
+        "oklch": "oklch(26.4% 0.010 268.3)",
+        "description": "The fainter divider between table rows and member rows.",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232426",
+          "#3e4044",
+          "#5b5d63",
+          "#7b7d83",
+          "#9c9ea4",
+          "#c5c7cc",
+          "#edeef1"
+        ]
+      },
+      "steel": {
+        "role": "neutral",
+        "displayName": "Screwhead Steel",
+        "canonical": "#6d7178",
+        "oklch": "oklch(54.8% 0.012 261.8)",
+        "description": "Ring terminals, nav connectors, tag and quiet-button borders, list markers, link underlines.",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232427",
+          "#3d4045",
+          "#5a5e64",
+          "#797d85",
+          "#9b9fa6",
+          "#c4c7cd",
+          "#edeef2"
+        ]
+      },
+      "glass": {
+        "role": "neutral",
+        "displayName": "Engraved Glass",
+        "canonical": "#b9bec5",
+        "oklch": "oklch(80.0% 0.011 256.7)",
+        "description": "Display headlines, the wordmark, engraved headings and channel labels: steel-grey caps.",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#222426",
+          "#3d4044",
+          "#5a5e64",
+          "#797e84",
+          "#9a9fa5",
+          "#c4c8cd",
+          "#eceff1"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Warm Ink",
+        "canonical": "#ebe7df",
+        "oklch": "oklch(92.9% 0.012 84.6)",
+        "description": "Body text and input text.",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252421",
+          "#423f3b",
+          "#605d57",
+          "#807d76",
+          "#a29e97",
+          "#cac7c1",
+          "#f0eeeb"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Worn Ink",
+        "canonical": "#bdb9b1",
+        "oklch": "oklch(78.7% 0.012 84.6)",
+        "description": "Secondary prose, field labels, nav at rest, status words at rest.",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252421",
+          "#423f3a",
+          "#605d57",
+          "#817d75",
+          "#a29e97",
+          "#cac7c1",
+          "#f0eeeb"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Faded Ink",
+        "canonical": "#9a968e",
+        "oklch": "oklch(67.4% 0.012 84.6)",
+        "description": "Tertiary text: footer, provenance, table heads, placeholders, the Closed status.",
+        "tonalRamp": [
+          "#0b0b0a",
+          "#252421",
+          "#423f3a",
+          "#615d56",
+          "#817d75",
+          "#a29e96",
+          "#cac7c1",
+          "#f0eeeb"
+        ]
+      },
+      "plasma": {
+        "role": "primary",
+        "displayName": "Plasma Orange",
+        "canonical": "#ff8a00",
+        "oklch": "oklch(74.7% 0.180 57.4)",
+        "description": "Live only: the lit switch, focus outline, caret, selection, current nav item, Waiting lamp.",
+        "tonalRamp": [
+          "#140802",
+          "#391b01",
+          "#623100",
+          "#8d4901",
+          "#ba6301",
+          "#e97e07",
+          "#feb57e",
+          "#feeadc"
+        ]
+      },
+      "plasma-soft": {
+        "role": "primary",
+        "displayName": "Lit Numeral Amber",
+        "canonical": "#ffb35c",
+        "oklch": "oklch(82.3% 0.136 67.6)",
+        "description": "Lit tube numerals, the live clock and every value read from the ledger.",
+        "tonalRamp": [
+          "#110903",
+          "#361e01",
+          "#5b3602",
+          "#845004",
+          "#af6c01",
+          "#d38d39",
+          "#f3bb7f",
+          "#feebd7"
+        ]
+      },
+      "on-plasma": {
+        "role": "primary",
+        "displayName": "Plasma Ink",
+        "canonical": "#140a00",
+        "oklch": "oklch(15.5% 0.033 76.4)",
+        "description": "Text on a plasma fill (selection, skip link).",
+        "tonalRamp": [
+          "#0c0b09",
+          "#28231d",
+          "#473e32",
+          "#685c4b",
+          "#897b68",
+          "#aa9c89",
+          "#d0c6b6",
+          "#f4eee5"
+        ]
+      },
+      "ontime": {
+        "role": "secondary",
+        "displayName": "On-Time Lamp Green",
+        "canonical": "#6fd696",
+        "oklch": "oklch(79.7% 0.134 154.7)",
+        "description": "The On time lamp and word, the connected dot, a registered credential, the done face.",
+        "tonalRamp": [
+          "#050e08",
+          "#062c17",
+          "#024d29",
+          "#04703e",
+          "#249458",
+          "#54b57a",
+          "#93dbab",
+          "#d4fadf"
+        ]
+      },
+      "on-ontime": {
+        "role": "secondary",
+        "displayName": "Lamp Ink Green",
+        "canonical": "#04140a",
+        "oklch": "oklch(17.3% 0.032 156.0)",
+        "description": "Text on the filled green done face.",
+        "tonalRamp": [
+          "#0a0c0a",
+          "#1f2621",
+          "#36443b",
+          "#516357",
+          "#6f8375",
+          "#90a497",
+          "#bcccc1",
+          "#e8f1eb"
+        ]
+      },
+      "late": {
+        "role": "secondary",
+        "displayName": "Alarm Red",
+        "canonical": "#ff5a3c",
+        "oklch": "oklch(68.5% 0.206 32.5)",
+        "description": "Delayed lamp, late and overdue text, errors, danger button, alarm and confirmation boxes.",
+        "tonalRamp": [
+          "#160604",
+          "#450c04",
+          "#781200",
+          "#ac1f00",
+          "#dd3818",
+          "#ff664a",
+          "#feb1a1",
+          "#fee9e5"
+        ]
+      },
+      "on-late": {
+        "role": "secondary",
+        "displayName": "Lamp Ink Red",
+        "canonical": "#1a0500",
+        "oklch": "oklch(15.3% 0.044 45.1)",
+        "description": "Text on the filled red danger button.",
+        "tonalRamp": [
+          "#0e0a09",
+          "#2c211d",
+          "#4f3b32",
+          "#72574b",
+          "#947668",
+          "#b59789",
+          "#dac1b6",
+          "#f9ebe5"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The counter's headline, uppercase, Engraved Glass, max 14ch; 38px at phone width."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The uppercase h1 of the working screens (Report, Officer desk)."
+      },
+      "title": {
+        "displayName": "Plate Title",
+        "purpose": "Uppercase heading inside a plate, in Warm Ink; 21px at phone width."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "The plain sentence-case sub-line under a display headline, max 46ch."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All running text, tabular figures, lines held to 60 to 66ch."
+      },
+      "body-sm": {
+        "displayName": "Body Small",
+        "purpose": "Hints, errors, notes, status lines, the footer."
+      },
+      "label": {
+        "displayName": "Engraved Label",
+        "purpose": "Uppercase engraved section headings and work sub-heads in Engraved Glass."
+      },
+      "label-control": {
+        "displayName": "Control Label",
+        "purpose": "Uppercase label of the lit switch and primary buttons."
+      },
+      "label-control-sm": {
+        "displayName": "Control Label Small",
+        "purpose": "Uppercase label of quiet, subtle and danger buttons."
+      },
+      "label-nav": {
+        "displayName": "Nav Label",
+        "purpose": "Uppercase top-plate nav items."
+      },
+      "label-field": {
+        "displayName": "Field Label",
+        "purpose": "Uppercase label above every field, in Worn Ink."
+      },
+      "label-status": {
+        "displayName": "Status Word",
+        "purpose": "Uppercase word beside each status lamp; thread speaker names."
+      },
+      "label-plate": {
+        "displayName": "Plate Label",
+        "purpose": "Uppercase channel names under the tubes and table column heads."
+      },
+      "label-tag": {
+        "displayName": "Tag",
+        "purpose": "Uppercase Planned and Demo organisation tags."
+      },
+      "numeral": {
+        "displayName": "Tube Numeral",
+        "purpose": "Nixie numerals inside tubes only; never words."
+      },
+      "clock": {
+        "displayName": "Clock",
+        "purpose": "The live clock in the top plate, amber with glow; 17px at phone width."
+      },
+      "mono": {
+        "displayName": "Ledger Mono",
+        "purpose": "Case ids, member fingerprints and the contract address, inline at 0.86em."
+      },
+      "mono-field": {
+        "displayName": "Mono Field",
+        "purpose": "Member keys in the key well and mono inputs for keys and key files."
+      }
+    },
+    "shadows": [
+      {
+        "name": "plate-lift",
+        "value": "filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.55))",
+        "purpose": "Lifts every drawn plate off the chassis; a filter so it follows the frame."
+      },
+      {
+        "name": "housing-lift",
+        "value": "filter: drop-shadow(0 16px 22px rgb(0 0 0 / 0.6))",
+        "purpose": "Lifts the instrument housing."
+      },
+      {
+        "name": "switch-recess",
+        "value": "inset 0 2px 5px rgb(0 0 0 / 0.75), 0 1px 0 rgb(255 255 255 / 0.05)",
+        "purpose": "Switches at rest, sunk into the plate."
+      },
+      {
+        "name": "switch-lit",
+        "value": "inset 0 2px 5px rgb(0 0 0 / 0.75), inset 0 0 18px rgb(255 138 0 / 0.22)",
+        "purpose": "Hovered switch, lit from inside."
+      },
+      {
+        "name": "field-well",
+        "value": "inset 0 2px 6px rgb(0 0 0 / 0.6)",
+        "purpose": "Inputs and textareas at rest."
+      },
+      {
+        "name": "field-focus",
+        "value": "inset 0 2px 6px rgb(0 0 0 / 0.6), 0 0 0 1px #ff8a00",
+        "purpose": "Focused field: well plus a 1px plasma ring."
+      },
+      {
+        "name": "name-plate-inset",
+        "value": "inset 0 1px 2px rgb(0 0 0 / 0.7)",
+        "purpose": "Recessed channel name plates under the tubes."
+      },
+      {
+        "name": "top-plate-seam",
+        "value": "0 1px 0 #050506",
+        "purpose": "Black seam under the top plate's mesh rule."
+      },
+      {
+        "name": "numeral-glow",
+        "value": "text-shadow: 0 0 4px rgb(255 179 92 / 0.9), 0 0 14px rgb(255 138 0 / 0.75), 0 0 32px rgb(255 100 0 / 0.45)",
+        "purpose": "Lit tube numerals only."
+      },
+      {
+        "name": "clock-glow",
+        "value": "text-shadow: 0 0 8px rgb(255 138 0 / 0.6)",
+        "purpose": "The live clock."
+      },
+      {
+        "name": "mark-glow",
+        "value": "inset 0 0 6px rgb(255 138 0 / 0.5)",
+        "purpose": "The wordmark's tube outline."
+      },
+      {
+        "name": "lamp-ontime",
+        "value": "0 0 6px rgb(111 214 150 / 0.7)",
+        "purpose": "Lit On time lamp."
+      },
+      {
+        "name": "lamp-due",
+        "value": "0 0 6px rgb(255 138 0 / 0.7)",
+        "purpose": "Lit Waiting lamp."
+      },
+      {
+        "name": "lamp-delayed",
+        "value": "0 0 6px rgb(255 90 60 / 0.8)",
+        "purpose": "Lit Delayed lamp."
+      },
+      {
+        "name": "lamp-unlit",
+        "value": "inset 0 -1px 2px rgb(0 0 0 / 0.6)",
+        "purpose": "Unlit lamp (#3b3d41), used for Closed."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The one curve (ease-out-expo), token --ease; every transition and the fade-in use it."
+      },
+      {
+        "name": "tube-cross-fade",
+        "value": "color 520ms, text-shadow 520ms (ease)",
+        "purpose": "Signature move: the old numeral dims as the new one lights when a value changes, including the first read. Single cross-fade, no flicker."
+      },
+      {
+        "name": "switch-state",
+        "value": "color 160ms, border-color 160ms, box-shadow 200ms, transform 120ms (ease)",
+        "purpose": "Switch and button hover; active presses down 1px (translateY(1px))."
+      },
+      {
+        "name": "done-flip",
+        "value": "fade-in 420ms (ease) both: opacity 0 to 1, blur(2px) to blur(0)",
+        "purpose": "A quick action flips to its done face for 2 seconds."
+      },
+      {
+        "name": "disclosure",
+        "value": "transform 160ms (ease), rotate(90deg)",
+        "purpose": "Chevron turn on an open disclosure."
+      },
+      {
+        "name": "spinner",
+        "value": "spin 800ms linear infinite",
+        "purpose": "Busy ring in a button during a long operation."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce) { * { animation: none; transition: none } }",
+        "purpose": "Every animation and transition off; values swap instantly."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "760px",
+        "purpose": "Top plate wraps, instrument compacts, case table becomes cards, counter page reorders."
+      },
+      {
+        "name": "readouts",
+        "value": "860px",
+        "purpose": "Public and sealed readouts stack."
+      },
+      {
+        "name": "hero",
+        "value": "900px",
+        "purpose": "Counter hero stacks."
+      },
+      {
+        "name": "work",
+        "value": "920px",
+        "purpose": "Working-screen grids stack."
+      },
+      {
+        "name": "container",
+        "value": "1240px",
+        "purpose": "Max content width (not a media query)."
+      }
+    ],
+    "assets": [
+      {
+        "path": "ui/src/assets/plate.svg",
+        "role": "Gunmetal plate frame, 9-slice border-image (slice 18, 14px border), two top-corner screws.",
+        "provenance": "Authored by hand for Sotto (Apache-2.0), 2026-11-19."
+      },
+      {
+        "path": "ui/src/assets/housing.svg",
+        "role": "Instrument housing frame, 9-slice border-image (slice 20, 16px border), deep bevel, four corner screws.",
+        "provenance": "Authored by hand for Sotto (Apache-2.0), 2026-11-19."
+      },
+      {
+        "path": "ui/src/assets/tube.svg",
+        "role": "Empty IN-14 style nixie envelope (100 x 190); numerals are live text over it.",
+        "provenance": "Authored by hand for Sotto (Apache-2.0), 2026-11-19."
+      },
+      {
+        "path": "ui/src/assets/screw.svg",
+        "role": "Slotted screw head, 10px, at both ends of every switch.",
+        "provenance": "Authored by hand for Sotto (Apache-2.0), 2026-11-19."
+      },
+      {
+        "path": "ui/src/icons.tsx",
+        "role": "Six inline SVG icons, 18px, 2px stroke, currentColor.",
+        "provenance": "Path data from Lucide (ISC licence)."
+      },
+      {
+        "path": "ui/src/fonts/*.woff2",
+        "role": "Self-hosted Big Shoulders Display, Saira Semi Condensed, Saira, Nixie One, JetBrains Mono.",
+        "provenance": "Declared in ui/src/fonts.css."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Lit Switch",
+      "kind": "button",
+      "refersTo": "switch",
+      "description": "The primary action: a recessed panel switch with a screw at each end that lights from inside on hover.",
+      "html": "<div class=\"ds-ground\"><button class=\"ds-switch\" type=\"button\"><svg class=\"ds-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg><span>File a report</span></button></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-switch { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; text-transform: uppercase; cursor: pointer; min-height: 52px; padding: 0 40px; font: 700 16px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.16em; color: var(--plasma, #ff8a00); background: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' width='10' height='10'%3E%3Cdefs%3E%3CradialGradient id='s' cx='38%' cy='35%' r='70%'%3E%3Cstop offset='0' stop-color='%238a8f96'/%3E%3Cstop offset='0.6' stop-color='%233a3d42'/%3E%3Cstop offset='1' stop-color='%231c1e21'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.2' fill='url(%23s)' stroke='%230b0c0d' stroke-width='0.8'/%3E%3Cline x1='2.6' y1='6.4' x2='7.4' y2='3.6' stroke='%23121315' stroke-width='1'/%3E%3C/svg%3E\") left 12px center / 10px 10px no-repeat, url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' width='10' height='10'%3E%3Cdefs%3E%3CradialGradient id='s' cx='38%' cy='35%' r='70%'%3E%3Cstop offset='0' stop-color='%238a8f96'/%3E%3Cstop offset='0.6' stop-color='%233a3d42'/%3E%3Cstop offset='1' stop-color='%231c1e21'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='5' cy='5' r='4.2' fill='url(%23s)' stroke='%230b0c0d' stroke-width='0.8'/%3E%3Cline x1='2.6' y1='6.4' x2='7.4' y2='3.6' stroke='%23121315' stroke-width='1'/%3E%3C/svg%3E\") right 12px center / 10px 10px no-repeat, #121315; border: 1px solid rgb(255 138 0 / 0.7); border-radius: 6px; box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.75), 0 1px 0 rgb(255 255 255 / 0.05); transition: color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 200ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 120ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-switch:hover:not(:disabled) { color: var(--plasma-soft, #ffb35c); border-color: var(--plasma, #ff8a00); box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.75), inset 0 0 18px rgb(255 138 0 / 0.22); } .ds-switch:active:not(:disabled) { transform: translateY(1px); } .ds-switch:focus-visible { outline: 2px solid var(--plasma, #ff8a00); outline-offset: 3px; } .ds-switch:disabled { opacity: 0.4; cursor: not-allowed; } .ds-icon { flex: none; } @media (prefers-reduced-motion: reduce) { .ds-switch { animation: none; transition: none; } }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Secondary actions; a quick action flips to its filled green done face for two seconds.",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-row\"><button class=\"ds-btn-quiet\" type=\"button\"><svg class=\"ds-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg><span>Copy member key</span></button><button class=\"ds-btn-quiet ds-done\" type=\"button\"><span class=\"ds-face\"><svg class=\"ds-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Copied</span></span></button></div></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-row { display: flex; flex-wrap: wrap; gap: 10px; } .ds-btn-quiet { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; text-transform: uppercase; cursor: pointer; min-height: 44px; padding: 0 16px; font: 700 14px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.16em; color: var(--ink, #ebe7df); background: #17181b; border: 1px solid var(--steel, #6d7178); border-radius: 6px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); transition: color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 120ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-btn-quiet:hover { border-color: var(--glass, #b9bec5); } .ds-btn-quiet:active { transform: translateY(1px); } .ds-btn-quiet:focus-visible { outline: 2px solid var(--plasma, #ff8a00); outline-offset: 3px; } .ds-btn-quiet.ds-done, .ds-btn-quiet.ds-done:hover { color: #04140a; background: var(--ontime, #6fd696); border-color: var(--ontime, #6fd696); } .ds-face { display: inline-flex; align-items: center; gap: 10px; animation: ds-fade-in 420ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)) both; } @keyframes ds-fade-in { from { opacity: 0; filter: blur(2px); } to { opacity: 1; filter: blur(0); } } .ds-icon { flex: none; } @media (prefers-reduced-motion: reduce) { .ds-btn-quiet, .ds-face { animation: none; transition: none; } }"
+    },
+    {
+      "name": "Subtle Button",
+      "kind": "button",
+      "refersTo": "button-subtle",
+      "description": "Leaving actions (Remove from this browser, Unload officer keys): borderless Faded Ink until hovered.",
+      "html": "<div class=\"ds-ground\"><button class=\"ds-btn-subtle\" type=\"button\">Remove from this browser</button></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-btn-subtle { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; text-transform: uppercase; cursor: pointer; min-height: 44px; padding: 0 16px; font: 700 14px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.16em; color: var(--ink-3, #9a968e); background: transparent; border: 1px solid transparent; border-radius: 6px; transition: color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-btn-subtle:hover { color: var(--ink, #ebe7df); border-color: var(--mesh, #3a3d42); } .ds-btn-subtle:focus-visible { outline: 2px solid var(--plasma, #ff8a00); outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-btn-subtle { animation: none; transition: none; } }"
+    },
+    {
+      "name": "Danger Button in Confirmation",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Every irreversible action passes through a red-tinted confirmation box: the danger button plus a quiet way out.",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-confirm\" role=\"alertdialog\" aria-labelledby=\"ds-confirm-q\"><p id=\"ds-confirm-q\"><strong>Remove your credential from this browser?</strong> Without it you can't read the officer's replies or answer them. You can bring it back only from your backup file.</p><div class=\"ds-row\"><button class=\"ds-btn-danger\" type=\"button\">Yes, remove it</button><button class=\"ds-btn-quiet\" type=\"button\">Keep it</button></div></div></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-confirm { padding: 14px 16px; background: rgb(255 90 60 / 0.08); border: 1px solid rgb(255 90 60 / 0.6); border-radius: 6px; } .ds-confirm p { margin: 0 0 12px; max-width: 60ch; } .ds-confirm strong { font-weight: 600; } .ds-row { display: flex; flex-wrap: wrap; gap: 10px; } .ds-btn-danger { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; text-transform: uppercase; cursor: pointer; min-height: 44px; padding: 0 18px; font: 700 14px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.16em; color: #1a0500; background: var(--late, #ff5a3c); border: 1px solid var(--late, #ff5a3c); border-radius: 6px; transition: background-color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 120ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-btn-danger:hover { background: #ff7a60; } .ds-btn-danger:active { transform: translateY(1px); } .ds-btn-danger:focus-visible { outline: 2px solid var(--plasma, #ff8a00); outline-offset: 3px; } .ds-btn-quiet { display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; text-transform: uppercase; cursor: pointer; min-height: 44px; padding: 0 16px; font: 700 14px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.16em; color: var(--ink, #ebe7df); background: #17181b; border: 1px solid var(--steel, #6d7178); border-radius: 6px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); transition: color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), border-color 160ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), transform 120ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-btn-quiet:hover { border-color: var(--glass, #b9bec5); } .ds-btn-quiet:active { transform: translateY(1px); } .ds-btn-quiet:focus-visible { outline: 2px solid var(--plasma, #ff8a00); outline-offset: 3px; } @media (prefers-reduced-motion: reduce) { .ds-btn-danger, .ds-btn-quiet { animation: none; transition: none; } }"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Caps label above, a Recess Black well with a plasma caret, hint below; focus rings the well in plasma. Mono variant for keys.",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-field\"><label for=\"ds-f1\">What happened</label><textarea id=\"ds-f1\" rows=\"4\" placeholder=\"What you saw, when and where.\" aria-describedby=\"ds-f1-hint\"></textarea><p class=\"ds-hint\" id=\"ds-f1-hint\">Sealed in this browser so only the compliance officer can read it. Leave out details only you could know.</p></div><div class=\"ds-field\"><label for=\"ds-f2\">Member key from an employee</label><input id=\"ds-f2\" class=\"ds-mono\" spellcheck=\"false\" aria-describedby=\"ds-f2-hint\"><p class=\"ds-hint\" id=\"ds-f2-hint\">64 characters.</p></div></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-field { margin-bottom: 10px; } .ds-field label { display: block; margin: 0 0 8px; font: 600 14px/1.3 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2, #bdb9b1); } .ds-field input, .ds-field textarea { box-sizing: border-box; width: 100%; margin: 0 0 8px; padding: 12px 14px; font: 17px/1.55 var(--sans, 'Saira', system-ui, sans-serif); color: var(--ink, #ebe7df); background: var(--field, #0b0b0b); border: 1px solid var(--mesh, #3a3d42); border-radius: 6px; caret-color: var(--plasma, #ff8a00); box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.6); } .ds-field textarea { resize: vertical; } .ds-field ::placeholder { color: var(--ink-3, #9a968e); } .ds-field input:focus, .ds-field textarea:focus { outline: none; border-color: var(--plasma, #ff8a00); box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.6), 0 0 0 1px var(--plasma, #ff8a00); } .ds-field .ds-mono { font-family: var(--mono, 'JetBrains Mono', ui-monospace, monospace); font-size: 15px; } .ds-hint { margin: 0 0 14px; max-width: 64ch; font-size: 15px; color: var(--ink-2, #bdb9b1); }"
+    },
+    {
+      "name": "Top Plate Navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Wordmark with its tube mark, organisation line with the Demo tag, ring-joined caps nav (current page in plasma), and the network badge with the live Nixie clock.",
+      "html": "<header class=\"ds-top\"><a class=\"ds-wordmark\" href=\"#\"><span class=\"ds-mark\" aria-hidden=\"true\"></span>Sotto</a><span class=\"ds-station\">Acme Logistics GmbH<span class=\"ds-demo-tag\">Demo organisation</span></span><nav class=\"ds-nav\" aria-label=\"Sections\"><a href=\"#\" aria-current=\"page\">Counter</a><a href=\"#\">Report</a><a href=\"#\">Officer</a></nav><span class=\"ds-net\"><span class=\"ds-dot\" aria-hidden=\"true\"></span>Midnight preview<time class=\"ds-clock\">01:37:17 PM</time></span></header>",
+      "css": ".ds-top { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; padding: 16px 24px; background: #141517; border-bottom: 1px solid var(--mesh, #3a3d42); box-shadow: 0 1px 0 #050506; font-variant-numeric: tabular-nums; } .ds-wordmark { display: inline-flex; align-items: center; gap: 12px; font: 700 30px/1 var(--display, 'Big Shoulders Display', 'Saira Semi Condensed', sans-serif); letter-spacing: 0.16em; text-transform: uppercase; text-decoration: none; color: var(--glass, #b9bec5); } .ds-mark { box-sizing: border-box; width: 18px; height: 26px; border-radius: 9px 9px 3px 3px; border: 1.5px solid var(--plasma, #ff8a00); box-shadow: inset 0 0 6px rgb(255 138 0 / 0.5); } .ds-station { display: inline-flex; align-items: center; gap: 10px; padding-left: 24px; border-left: 1px solid var(--mesh, #3a3d42); font: 500 15px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2, #bdb9b1); } .ds-demo-tag { padding: 5px 7px; font: 600 11px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.14em; border: 1px solid var(--steel, #6d7178); border-radius: 3px; color: var(--ink-2, #bdb9b1); } .ds-nav { display: flex; align-items: center; margin-left: auto; } .ds-nav a { position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; font: 600 15px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.16em; text-transform: uppercase; text-decoration: none; color: var(--ink-2, #bdb9b1); border: 1px solid transparent; border-radius: 4px; } .ds-nav a + a::before { content: ''; position: absolute; left: -4px; top: 50%; box-sizing: border-box; width: 7px; height: 7px; margin-top: -3.5px; border: 1px solid var(--steel, #6d7178); border-radius: 50%; } .ds-nav a:hover { color: var(--ink, #ebe7df); border-color: var(--mesh, #3a3d42); } .ds-nav a[aria-current='page'] { color: var(--plasma, #ff8a00); border-color: rgb(255 138 0 / 0.55); } .ds-nav a:focus-visible { outline: 2px solid var(--plasma, #ff8a00); outline-offset: 3px; } .ds-net { display: inline-flex; align-items: center; gap: 10px; padding: 8px 14px; border: 1px solid var(--mesh, #3a3d42); border-radius: 6px; background: var(--field, #0b0b0b); font: 500 14px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-2, #bdb9b1); } .ds-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ontime, #6fd696); } .ds-clock { min-width: 5.6em; text-align: right; font: 400 20px/1 var(--tube-font, 'Nixie One', 'Saira', sans-serif); color: var(--plasma-soft, #ffb35c); text-shadow: 0 0 8px rgb(255 138 0 / 0.6); }"
+    },
+    {
+      "name": "Status Lamps",
+      "kind": "chip",
+      "refersTo": "status-ontime",
+      "description": "A 10px lamp and its word, never colour alone: On time, Waiting, Delayed, Closed.",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-row\"><span class=\"ds-status ds-ontime\"><span class=\"ds-lamp\" aria-hidden=\"true\"></span>On time</span><span class=\"ds-status ds-due\"><span class=\"ds-lamp\" aria-hidden=\"true\"></span>Waiting</span><span class=\"ds-status ds-delayed\"><span class=\"ds-lamp\" aria-hidden=\"true\"></span>Delayed</span><span class=\"ds-status ds-closed\"><span class=\"ds-lamp\" aria-hidden=\"true\"></span>Closed</span></div></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-row { display: flex; flex-wrap: wrap; gap: 14px 28px; } .ds-status { display: inline-flex; align-items: center; gap: 8px; font: 600 13px/1 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2, #bdb9b1); white-space: nowrap; } .ds-lamp { width: 10px; height: 10px; border-radius: 50%; background: #3b3d41; box-shadow: inset 0 -1px 2px rgb(0 0 0 / 0.6); } .ds-ontime { color: var(--ontime, #6fd696); } .ds-ontime .ds-lamp { background: var(--ontime, #6fd696); box-shadow: 0 0 6px rgb(111 214 150 / 0.7); } .ds-due { color: var(--plasma-soft, #ffb35c); } .ds-due .ds-lamp { background: var(--plasma, #ff8a00); box-shadow: 0 0 6px rgb(255 138 0 / 0.7); } .ds-delayed { color: var(--late, #ff5a3c); } .ds-delayed .ds-lamp { background: var(--late, #ff5a3c); box-shadow: 0 0 6px rgb(255 90 60 / 0.8); } .ds-closed { color: var(--ink-3, #9a968e); }"
+    },
+    {
+      "name": "Plate and Engraved Heading",
+      "kind": "card",
+      "refersTo": "plate",
+      "description": "A drawn gunmetal plate (9-slice SVG with screws) frames a unit someone acts on; sections on the chassis take an engraved caps heading ending in a ring terminal.",
+      "html": "<div class=\"ds-ground\"><aside class=\"ds-plate\"><h2 class=\"ds-plate-title\">Seen something at work?</h2><p>File a sealed report. It proves you work there without saying who you are, and only the compliance officer can read it.</p><p class=\"ds-planned\"><span class=\"ds-tag\">Planned</span> The organisation pays each fee (I-012).</p></aside><h2 class=\"ds-engraved\">Cases on this channel</h2></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-plate { position: relative; max-width: 440px; margin: 0 0 28px; padding: 14px 16px; border: 14px solid transparent; border-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60' width='60' height='60'%3E%3Cdefs%3E%3CradialGradient id='screw' cx='38%' cy='35%' r='70%'%3E%3Cstop offset='0' stop-color='%238a8f96'/%3E%3Cstop offset='0.6' stop-color='%233a3d42'/%3E%3Cstop offset='1' stop-color='%231c1e21'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect x='0.5' y='0.5' width='59' height='59' rx='7' fill='%23202327' stroke='%233a3d42'/%3E%3Crect x='3' y='3' width='54' height='54' rx='5' fill='none' stroke='%230b0c0d' stroke-opacity='0.85'/%3E%3Cpath d='M5 3.6 H55' stroke='%23ffffff' stroke-opacity='0.07'/%3E%3Cpath d='M5 56.4 H55' stroke='%23000000' stroke-opacity='0.5'/%3E%3Cg%3E%3Ccircle cx='11' cy='11' r='3.4' fill='url(%23screw)' stroke='%230b0c0d' stroke-width='0.8'/%3E%3Cline x1='8.9' y1='12.4' x2='13.1' y2='9.6' stroke='%23121315' stroke-width='1'/%3E%3Ccircle cx='49' cy='11' r='3.4' fill='url(%23screw)' stroke='%230b0c0d' stroke-width='0.8'/%3E%3Cline x1='46.9' y1='9.6' x2='51.1' y2='12.4' stroke='%23121315' stroke-width='1'/%3E%3C/g%3E%3C/svg%3E\") 18 / 14px stretch; background: var(--plate, #202327); background-clip: padding-box; filter: drop-shadow(0 12px 18px rgb(0 0 0 / 0.55)); } .ds-plate-title { margin: 0 0 10px; font: 700 24px/1.15 var(--display, 'Big Shoulders Display', 'Saira Semi Condensed', sans-serif); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink, #ebe7df); } .ds-plate p { margin: 0 0 14px; color: var(--ink-2, #bdb9b1); } .ds-plate .ds-planned { margin: 0; font-size: 14px; } .ds-tag { display: inline-block; margin-right: 6px; padding: 2px 6px; font: 600 11px/1.4 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.14em; text-transform: uppercase; border: 1px solid var(--steel, #6d7178); border-radius: 3px; color: var(--glass, #b9bec5); } .ds-engraved { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; font: 600 14px/1.2 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.2em; text-transform: uppercase; color: var(--glass, #b9bec5); } .ds-engraved::after { content: ''; flex: 1; height: 1px; background: var(--mesh, #3a3d42); } .ds-engraved::before { content: ''; order: 2; box-sizing: border-box; width: 7px; height: 7px; border: 1px solid var(--steel, #6d7178); border-radius: 50%; }"
+    },
+    {
+      "name": "Tube Channel",
+      "kind": "custom",
+      "refersTo": "tube",
+      "description": "The signature: tube channels in the instrument housing, unlit numerals faintly visible behind the lit one. Hover the housing to see the 520ms cross-fade (02 becomes 03).",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-instrument\" role=\"group\" aria-label=\"Response counter\"><div class=\"ds-channel\"><span class=\"ds-sr\">Reports received: 2</span><div class=\"ds-tubes\"><span class=\"ds-tube\" aria-hidden=\"true\"><span class=\"ds-numeral\">1</span><span class=\"ds-numeral\">6</span><span class=\"ds-numeral\">2</span><span class=\"ds-numeral\">7</span><span class=\"ds-numeral\">5</span><span class=\"ds-numeral ds-lit\">0</span><span class=\"ds-numeral\">4</span><span class=\"ds-numeral\">9</span><span class=\"ds-numeral\">8</span><span class=\"ds-numeral\">3</span></span><span class=\"ds-tube ds-flip\" aria-hidden=\"true\"><span class=\"ds-numeral\">1</span><span class=\"ds-numeral\">6</span><span class=\"ds-numeral ds-lit ds-from\">2</span><span class=\"ds-numeral\">7</span><span class=\"ds-numeral\">5</span><span class=\"ds-numeral\">0</span><span class=\"ds-numeral\">4</span><span class=\"ds-numeral\">9</span><span class=\"ds-numeral\">8</span><span class=\"ds-numeral ds-to\">3</span></span></div><div class=\"ds-channel-plate\" aria-hidden=\"true\"><span class=\"ds-channel-label\">Reports received</span></div></div><div class=\"ds-channel\"><span class=\"ds-sr\">Acknowledged within 7 days: 1 of 1</span><div class=\"ds-tubes\"><span class=\"ds-tube\" aria-hidden=\"true\"><span class=\"ds-numeral\">1</span><span class=\"ds-numeral\">6</span><span class=\"ds-numeral\">2</span><span class=\"ds-numeral\">7</span><span class=\"ds-numeral\">5</span><span class=\"ds-numeral ds-lit\">0</span><span class=\"ds-numeral\">4</span><span class=\"ds-numeral\">9</span><span class=\"ds-numeral\">8</span><span class=\"ds-numeral\">3</span></span><span class=\"ds-tube\" aria-hidden=\"true\"><span class=\"ds-numeral ds-lit\">1</span><span class=\"ds-numeral\">6</span><span class=\"ds-numeral\">2</span><span class=\"ds-numeral\">7</span><span class=\"ds-numeral\">5</span><span class=\"ds-numeral\">0</span><span class=\"ds-numeral\">4</span><span class=\"ds-numeral\">9</span><span class=\"ds-numeral\">8</span><span class=\"ds-numeral\">3</span></span></div><div class=\"ds-channel-plate\" aria-hidden=\"true\"><span class=\"ds-channel-label\">Acknowledged on time</span><span class=\"ds-channel-readout\">of 1 · within 7 days</span></div></div></div></div>",
+      "css": ".ds-ground { background: var(--chassis, #0f0e0d); color: var(--ink, #ebe7df); font: 17px/1.6 var(--sans, 'Saira', system-ui, sans-serif); font-variant-numeric: tabular-nums; padding: 24px; } .ds-instrument { display: flex; flex-wrap: wrap; justify-content: space-around; gap: 8px 0; padding: 18px 8px 14px; border: 16px solid transparent; border-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72' width='72' height='72'%3E%3Cdefs%3E%3CradialGradient id='screw' cx='38%' cy='35%' r='70%'%3E%3Cstop offset='0' stop-color='%237a7f86'/%3E%3Cstop offset='0.6' stop-color='%2334373c'/%3E%3Cstop offset='1' stop-color='%2317181a'/%3E%3C/radialGradient%3E%3ClinearGradient id='bevel' x1='0' x2='0' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%232c2e32'/%3E%3Cstop offset='0.08' stop-color='%2318191b'/%3E%3Cstop offset='0.92' stop-color='%23121314'/%3E%3Cstop offset='1' stop-color='%23050506'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0.5' y='0.5' width='71' height='71' rx='9' fill='url(%23bevel)' stroke='%2345484d'/%3E%3Crect x='7' y='7' width='58' height='58' rx='4' fill='%23111214' stroke='%23050506'/%3E%3Cpath d='M9 7.8 H63' stroke='%23ffffff' stroke-opacity='0.05'/%3E%3Cg%3E%3Ccircle cx='13' cy='13' r='3.6' fill='url(%23screw)' stroke='%23050506' stroke-width='0.8'/%3E%3Cline x1='10.8' y1='14.4' x2='15.2' y2='11.6' stroke='%230c0d0e'/%3E%3Ccircle cx='59' cy='13' r='3.6' fill='url(%23screw)' stroke='%23050506' stroke-width='0.8'/%3E%3Cline x1='56.8' y1='11.6' x2='61.2' y2='14.4' stroke='%230c0d0e'/%3E%3Ccircle cx='13' cy='59' r='3.6' fill='url(%23screw)' stroke='%23050506' stroke-width='0.8'/%3E%3Cline x1='10.8' y1='57.6' x2='15.2' y2='60.4' stroke='%230c0d0e'/%3E%3Ccircle cx='59' cy='59' r='3.6' fill='url(%23screw)' stroke='%23050506' stroke-width='0.8'/%3E%3Cline x1='56.8' y1='60.4' x2='61.2' y2='57.6' stroke='%230c0d0e'/%3E%3C/g%3E%3C/svg%3E\") 20 / 16px stretch; background: var(--housing, #111214); background-clip: padding-box; filter: drop-shadow(0 16px 22px rgb(0 0 0 / 0.6)); } .ds-channel { flex: 1 1 0; min-width: 150px; display: flex; flex-direction: column; align-items: center; padding: 0 14px; } .ds-channel + .ds-channel { border-left: 1px solid #26282c; } .ds-tubes { display: flex; justify-content: center; gap: 6px; } .ds-tube { position: relative; width: clamp(56px, 5.6vw, 76px); aspect-ratio: 100 / 190; background: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 190' width='100' height='190'%3E%3Cdefs%3E%3CradialGradient id='glow' cx='50%' cy='44%' r='55%'%3E%3Cstop offset='0' stop-color='%23ff8a00' stop-opacity='0.18'/%3E%3Cstop offset='0.55' stop-color='%23ff8a00' stop-opacity='0.05'/%3E%3Cstop offset='1' stop-color='%23000' stop-opacity='0'/%3E%3C/radialGradient%3E%3ClinearGradient id='glass' x1='0' x2='1' y1='0' y2='0'%3E%3Cstop offset='0' stop-color='%232a2c30'/%3E%3Cstop offset='0.14' stop-color='%23121315'/%3E%3Cstop offset='0.82' stop-color='%230c0d0e'/%3E%3Cstop offset='1' stop-color='%2326282c'/%3E%3C/linearGradient%3E%3ClinearGradient id='cap' x1='0' x2='1' y1='0' y2='0'%3E%3Cstop offset='0' stop-color='%232b2d31'/%3E%3Cstop offset='0.3' stop-color='%235c6168'/%3E%3Cstop offset='0.55' stop-color='%233a3d42'/%3E%3Cstop offset='1' stop-color='%231a1b1e'/%3E%3C/linearGradient%3E%3Cpattern id='hex' width='8.66' height='15' patternUnits='userSpaceOnUse'%3E%3Cpath d='M4.33 0 L8.66 2.5 L8.66 7.5 L4.33 10 L0 7.5 L0 2.5 Z M4.33 10 L4.33 15' fill='none' stroke='%238a8f96' stroke-opacity='0.32' stroke-width='0.7'/%3E%3C/pattern%3E%3CclipPath id='inner'%3E%3Cpath d='M17 150 L17 52 A33 33 0 0 1 83 52 L83 150 Z'/%3E%3C/clipPath%3E%3C/defs%3E%3Cpath d='M10 156 L10 50 A40 40 0 0 1 90 50 L90 156 Z' fill='url(%23glass)'/%3E%3Cpath d='M10 156 L10 50 A40 40 0 0 1 90 50 L90 156 Z' fill='url(%23glow)'/%3E%3Crect x='17' y='18' width='66' height='132' fill='url(%23hex)' clip-path='url(%23inner)'/%3E%3Cline x1='21' y1='34' x2='21' y2='150' stroke='%236d7178' stroke-opacity='0.55' stroke-width='1.2'/%3E%3Cline x1='79' y1='34' x2='79' y2='150' stroke='%236d7178' stroke-opacity='0.55' stroke-width='1.2'/%3E%3Cellipse cx='50' cy='150' rx='33' ry='3' fill='%23000' fill-opacity='0.6'/%3E%3Cpath d='M10 156 L10 50 A40 40 0 0 1 90 50 L90 156' fill='none' stroke='%236b7077' stroke-opacity='0.7' stroke-width='1.3'/%3E%3Cpath d='M17 140 L17 52 A33 33 0 0 1 36 22' fill='none' stroke='%23ffffff' stroke-opacity='0.22' stroke-width='3' stroke-linecap='round'/%3E%3Cpath d='M84 60 L84 118' fill='none' stroke='%23ffffff' stroke-opacity='0.08' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='66' cy='22' r='2.2' fill='%23ffffff' fill-opacity='0.35'/%3E%3Crect x='8' y='154' width='84' height='20' rx='2' fill='url(%23cap)'/%3E%3Crect x='8' y='154' width='84' height='20' rx='2' fill='none' stroke='%230a0a0b' stroke-opacity='0.6'/%3E%3Cline x1='8' y1='161' x2='92' y2='161' stroke='%230a0a0b' stroke-opacity='0.45'/%3E%3Cline x1='8' y1='167' x2='92' y2='167' stroke='%23ffffff' stroke-opacity='0.07'/%3E%3Cg stroke='%238a8f96' stroke-width='2' stroke-linecap='round'%3E%3Cline x1='26' y1='174' x2='26' y2='186'/%3E%3Cline x1='42' y1='174' x2='42' y2='186'/%3E%3Cline x1='58' y1='174' x2='58' y2='186'/%3E%3Cline x1='74' y1='174' x2='74' y2='186'/%3E%3C/g%3E%3C/svg%3E\") center / 100% 100% no-repeat; } .ds-numeral { position: absolute; inset: 16% 10% 26% 10%; display: flex; align-items: center; justify-content: center; font: 400 clamp(48px, 5vw, 66px)/1 var(--tube-font, 'Nixie One', 'Saira', sans-serif); color: rgb(160 150 138 / 0.08); text-shadow: none; transition: color 520ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)), text-shadow 520ms var(--ease, cubic-bezier(0.16, 1, 0.3, 1)); } .ds-numeral.ds-lit { color: var(--plasma-soft, #ffb35c); text-shadow: 0 0 4px rgb(255 179 92 / 0.9), 0 0 14px rgb(255 138 0 / 0.75), 0 0 32px rgb(255 100 0 / 0.45); } .ds-instrument:hover .ds-flip .ds-from { color: rgb(160 150 138 / 0.08); text-shadow: none; } .ds-instrument:hover .ds-flip .ds-to { color: var(--plasma-soft, #ffb35c); text-shadow: 0 0 4px rgb(255 179 92 / 0.9), 0 0 14px rgb(255 138 0 / 0.75), 0 0 32px rgb(255 100 0 / 0.45); } .ds-channel-plate { box-sizing: border-box; min-width: 100%; margin-top: 12px; padding: 7px 10px 8px; text-align: center; background: #191a1d; border: 1px solid #2c2e32; border-radius: 3px; box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.7); } .ds-channel-label { display: block; font: 600 12px/1.3 var(--label, 'Saira Semi Condensed', 'Saira', sans-serif); letter-spacing: 0.18em; text-transform: uppercase; color: var(--glass, #b9bec5); } .ds-channel-readout { display: block; margin-top: 3px; font: 500 12px/1.3 var(--mono, 'JetBrains Mono', ui-monospace, monospace); color: var(--plasma-soft, #ffb35c); } .ds-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } @media (prefers-reduced-motion: reduce) { .ds-numeral { animation: none; transition: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Laboratory Counter",
+    "overview": "Sotto is set as a bench instrument, not a page. The channel's record is read off a counter: every count and countdown is a lit numeral inside a drawn glass tube, the tubes stand in a blackened-steel housing, and each channel is named on a small recessed plate in engraved steel caps. The ground is a warm near-black steel chassis. Gunmetal plates, fastened with screws, lift off it and hold the units people act on; switches and fields sink into those plates. The record reads as a measurement nobody typed.\n\nThere is one light source. Plasma orange is the only colour that glows, and it lights only what is live: lit numerals, values read from the ledger, the clock, the waiting lamp, the current position, focus, and the switch that acts. Everything else is steel and warm ink. Two lamp colours, green and red, report state, and each lamp always stands beside its word. Density is instrument-like and calm: condensed caps carry the hierarchy, a rounded technical sans carries the reading at 17px in sentence case, and tabular numerals keep every count aligned.\n\nThe user built and rejected two earlier looks: the editorial paper look (warm paper, serif, ink) and the station departure board (deep blue ground, signal yellow). The category's white-and-navy dashboard of stat cards is what this world refuses. Condensed caps are native here; what was rejected about the departure board is its blue-and-yellow signage, not condensed type.",
+    "keyCharacteristics": [
+      "A blackened, slightly warm steel chassis with gunmetal plates and an instrument housing drawn as 9-slice SVG frames with screws.",
+      "Live counts as lit Nixie numerals in drawn IN-14 tube envelopes, all ten unlit numerals faintly visible behind the lit one.",
+      "Plasma orange as the only glow, reserved for what is live.",
+      "Steel-grey condensed engraved caps for every heading, label and button; sentence-case Saira for prose.",
+      "Status lamps that always carry their word.",
+      "One signature move: a tube cross-fades from the old numeral to the new one, including the first read; reduced motion swaps instantly."
+    ],
+    "rules": [
+      {
+        "name": "The Live Light Rule",
+        "body": "Plasma is light, and light means live. It appears only on lit numerals, ledger values, the clock, the Waiting lamp, the current position, focus, caret, selection and the action switch. It never fills a surface (selection and the skip link are the only plasma fills), never sets running text, and never decorates.",
+        "section": "colors"
+      },
+      {
+        "name": "The Lamp And Word Rule",
+        "body": "State is never colour alone. Every lamp sits beside its word (On time, Waiting, Delayed, Closed), a late channel's count says how many, and the network dot is followed by the word \"reconnecting\" when it turns red.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Neon Rule",
+        "body": "No blues and no purples anywhere. The only saturated hues are plasma orange, lamp green and alarm red.",
+        "section": "colors"
+      },
+      {
+        "name": "The Engraved Caps Rule",
+        "body": "Every heading, label, button and tag is uppercase condensed caps with open tracking (0.05em at display sizes, 0.1em to 0.2em on labels). Running text, hints, errors, inline links and disclosure rows stay in sentence case.",
+        "section": "typography"
+      },
+      {
+        "name": "The Glass Numeral Rule",
+        "body": "Nixie One sets the numerals inside tubes and the live clock, nothing else. Words never go in the tube face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ledger Mono Rule",
+        "body": "Anything copied from or checkable against the ledger (case ids, member keys, fingerprints, the contract address, elapsed proving time) is set in JetBrains Mono, usually in Lit Numeral Amber.",
+        "section": "typography"
+      },
+      {
+        "name": "The Lifted Plate, Sunken Control Rule",
+        "body": "Plates and the housing rise off the chassis; switches, fields and name plates sink into what holds them. Nothing else takes an outer shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Only Light Glows Rule",
+        "body": "A coloured glow belongs to lit numerals, the clock, lit lamps, the wordmark's tube and the hovered switch. A static surface never glows.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Plates Frame Units Rule",
+        "body": "A drawn, screwed plate frames each unit someone acts on: the File a report panel, the desk plates, the credential, each case. The case log, the readouts and member lists sit unframed on the chassis, ruled by hairlines.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do put every live count in tubes: lit Nixie numerals in the drawn envelope, the unlit stack faintly visible, a single 520ms cross-fade when a value changes.",
+      "Do reserve plasma (#ff8a00, #ffb35c) for what is live: numerals, ledger values, the clock, the Waiting lamp, the current position, focus, caret, selection and the action switch.",
+      "Do pair every lamp with its word, and give every tube channel a full spoken sentence for screen readers.",
+      "Do set headings, labels, buttons and tags in uppercase condensed caps with 0.1em to 0.2em tracking, and all running text in sentence-case Saira at 15 to 17px.",
+      "Do set ledger values (case ids, keys, fingerprints, the contract address) in JetBrains Mono.",
+      "Do frame each unit someone acts on with the drawn plate or housing (9-slice SVG with screws), and sink controls into it with inset shadows.",
+      "Do keep touch targets at 44px minimum (52px for switches) and the 2px plasma focus outline at a 3px offset.",
+      "Do honour reduced motion: every animation and transition off, values swap instantly.",
+      "Do mark anything not yet built with the Planned tag and the demo organisation with the Demo organisation tag."
+    ],
+    "donts": [
+      "Don't use the editorial paper look (warm paper, serif, ink) or the station departure board (deep blue ground, signal yellow); the user built and rejected both.",
+      "Don't build the category's white-and-navy dashboard of stat cards; counts live in the instrument, not in cards.",
+      "Don't use neon blues or purples, or any saturated hue beyond plasma orange, lamp green and alarm red.",
+      "Don't make anything glow that is not lit; static surfaces take no coloured shadow.",
+      "Don't convey state by colour alone.",
+      "Don't set words in Nixie One, or running text in uppercase caps.",
+      "Don't ship an irreversible action without a confirmation box."
+    ]
+  }
+}

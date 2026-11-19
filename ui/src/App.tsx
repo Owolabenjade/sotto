@@ -23,7 +23,7 @@ import {
 } from './keys';
 import { IconCheck, IconChevron, IconCopy, IconDownload, IconLock, IconSend } from './icons';
 import { Instrument, type Channel } from './tubes';
-import { DARK_COUNTER, FileSwitch, WarmupDesk, routeFromHash, type Route } from './warmup';
+import { DARK_COUNTER, FileSwitch, LiveClock, Station, WarmupDesk, routeFromHash, type Route } from './warmup';
 
 const DEMO_ORG = (import.meta.env.VITE_DEMO_ORG ?? '1') === '1';
 
@@ -81,14 +81,6 @@ function useChannel(address: string) {
   return { l, view, error, readAt, loading, refresh };
 }
 
-function useNow(intervalMs = 1000) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), intervalMs);
-    return () => clearInterval(t);
-  }, [intervalMs]);
-  return now;
-}
 
 // ---- controls ----
 
@@ -164,7 +156,7 @@ function recovery(err: string): string {
       : /dust|fee|balance|insufficient/i.test(err)
         ? 'Your Lace wallet needs tNIGHT and DUST for the fee: fund it from the Preview faucet, wait for DUST, then try again.'
         : 'Wait a minute and try again.';
-  return `That didn't go through: ${err}. ${next}`;
+  return `That didn't go through. ${next} (Details: ${err})`;
 }
 
 /** A quick action with visible confirmation: the button flips to its done state for two seconds. */
@@ -300,10 +292,12 @@ function Clock({ view, address, readAt }: { view: ChannelView | null; address: s
           : ['Every report answered on time.', `${plural(view.cases.length, 'report', 'reports')}, all acknowledged within ${fmtSpanLong(view.ackSecs)}.`];
 
   const channels: Channel[] = [
-    { id: 'reports', label: 'Reports received', value: view.cases.length, places: 2, spoken: `Reports received: ${view.cases.length}` },
+    { id: 'reports', label: 'Reports received', short: 'Reports', value: view.cases.length, places: 2, spoken: `Reports received: ${view.cases.length}` },
     {
       id: 'ontime',
       label: 'Acknowledged on time',
+      short: 'On time',
+      readoutShort: acked > 0 ? `of ${acked}` : `${fmtSpan(view.ackSecs)} window`,
       readout: `${acked > 0 ? `of ${acked} · ` : ''}within ${fmtSpanLong(view.ackSecs)}`,
       value: view.ackOnTime,
       places: 2,
@@ -312,6 +306,7 @@ function Clock({ view, address, readAt }: { view: ChannelView | null; address: s
     {
       id: 'overdue',
       label: 'Overdue now',
+      short: 'Overdue',
       value: view.overdue,
       places: 1,
       spoken: `Overdue now: ${view.overdue}`,
@@ -320,6 +315,7 @@ function Clock({ view, address, readAt }: { view: ChannelView | null; address: s
     {
       id: 'days',
       label: daysToNext === null ? 'No deadline running' : 'Days to next deadline',
+      short: daysToNext === null ? 'None due' : 'Days left',
       value: daysToNext,
       places: 1,
       spoken: daysToNext === null ? 'No acknowledgement deadline running' : `Days to the next acknowledgement deadline: ${daysToNext}`,
@@ -339,8 +335,9 @@ function Clock({ view, address, readAt }: { view: ChannelView | null; address: s
       <Instrument channels={channels} label="Response counter" />
 
       <p className="lede after-instrument">
-        Every number on this counter is read from the public Midnight ledger. Nobody, {view.orgName} included, can see who filed a report or what
-        it says. Anyone can see whether it was answered in time.
+        Every number on this counter is read from the public Midnight ledger. The ledger never shows who filed a report or what it says: only the
+        compliance officer can read a report, and nobody, {view.orgName} included, can see who wrote it. Anyone can see whether it was answered in
+        time.
       </p>
 
       <section className="log" aria-labelledby="cases-title">
@@ -566,7 +563,19 @@ function ReportIntro({ onCred }: { onCred: (c: MemberCredential) => void }) {
     );
 }
 
-function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; address: string; refresh: () => Promise<void> }) {
+function Report({
+  l,
+  view,
+  address,
+  refresh,
+  onRemoved,
+}: {
+  l: Ledger;
+  view: ChannelView;
+  address: string;
+  refresh: () => Promise<void>;
+  onRemoved: () => void;
+}) {
   const [cred, setCred] = useState<MemberCredential | null>(loadMember);
   const [text, setText] = useState('');
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -645,6 +654,7 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
                       forgetMember();
                       setConfirmRemove(false);
                       setCred(null);
+                      onRemoved();
                     }}
                   >
                     Yes, remove it
@@ -872,6 +882,7 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
     {
       id: 'days',
       label: daysToOldest === null ? 'No deadline running' : 'Days to oldest deadline',
+      short: daysToOldest === null ? 'None due' : 'Days left',
       value: daysToOldest,
       places: 1,
       spoken: daysToOldest === null ? 'No deadline running' : `Days to the oldest acknowledgement deadline: ${daysToOldest}`,
@@ -952,15 +963,6 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
 
 // ---- shell ----
 
-function LiveClock() {
-  const now = useNow();
-  return (
-    <time className="live-clock" dateTime={new Date(now).toISOString()} aria-label="Current time">
-      {new Date(now).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-    </time>
-  );
-}
-
 export default function App() {
   const [route, setRoute] = useState<Route>(routeFromHash);
   const [address] = useState(contractFromUrl);
@@ -992,12 +994,7 @@ export default function App() {
           <span className="mark" aria-hidden="true" />
           Sotto
         </a>
-        {view && (
-          <span className="station">
-            {view.orgName}
-            {DEMO_ORG && <span className="demo-tag">Demo organisation</span>}
-          </span>
-        )}
+        <Station org={view?.orgName} demo={DEMO_ORG} />
         <nav aria-label="Sections">
           {nav('clock', 'Counter')}
           {nav('report', 'Report')}
@@ -1021,9 +1018,11 @@ export default function App() {
           </div>
         )}
         {address && route === 'clock' && (l || !error) && <Clock view={view} address={address} readAt={readAt} />}
-        {address && !l && !error && route === 'report' && !hasCred && <ReportIntro onCred={() => setHasCred(true)} />}
-        {address && !l && !error && route !== 'clock' && !(route === 'report' && !hasCred) && <WarmupDesk route={route} />}
-        {l && view && route === 'report' && <Report l={l} view={view} address={address} refresh={refresh} />}
+        {address && route === 'report' && !hasCred && <ReportIntro onCred={() => setHasCred(true)} />}
+        {address && !l && !error && ((route === 'report' && hasCred) || route === 'officer') && <WarmupDesk route={route as 'report' | 'officer'} />}
+        {l && view && route === 'report' && hasCred && (
+          <Report l={l} view={view} address={address} refresh={refresh} onRemoved={() => setHasCred(false)} />
+        )}
         {l && view && route === 'officer' && <Officer l={l} view={view} address={address} refresh={refresh} />}
       </main>
       <footer>

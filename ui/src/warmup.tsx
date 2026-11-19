@@ -2,6 +2,7 @@
 // First paint, before the Midnight runtime (WebAssembly) has loaded. Nothing
 // here may import that runtime. The frame follows the route, so a #/report
 // link never first paints the counter.
+import { useEffect, useState } from 'react';
 import { IconLock } from './icons';
 import { Instrument, type Channel } from './tubes';
 
@@ -13,11 +14,35 @@ export const routeFromHash = (): Route => {
 };
 
 export const DARK_COUNTER: Channel[] = [
-  { id: 'reports', label: 'Reports received', value: null, places: 2, spoken: '' },
-  { id: 'ontime', label: 'Acknowledged on time', value: null, places: 2, spoken: '' },
-  { id: 'overdue', label: 'Overdue now', value: null, places: 1, spoken: '' },
-  { id: 'days', label: 'Days to next deadline', value: null, places: 1, spoken: '' },
+  { id: 'reports', label: 'Reports received', short: 'Reports', value: null, places: 2, spoken: '' },
+  { id: 'ontime', label: 'Acknowledged on time', short: 'On time', value: null, places: 2, spoken: '' },
+  { id: 'overdue', label: 'Overdue now', short: 'Overdue', value: null, places: 1, spoken: '' },
+  { id: 'days', label: 'Days to next deadline', short: 'Days left', value: null, places: 1, spoken: '' },
 ];
+
+/** The wall clock in the top plate, set in the tube face. */
+export function LiveClock() {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <time className="live-clock" dateTime={new Date(now).toISOString()} aria-label="Current time">
+      {new Date(now).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+    </time>
+  );
+}
+
+/** The organisation's name in the top plate; its row is reserved before the ledger answers, so nothing jumps. */
+export function Station({ org, demo }: { org?: string; demo?: boolean }) {
+  return (
+    <span className="station">
+      {org ?? <span className="muted">Reading channel…</span>}
+      {org && demo && <span className="demo-tag">Demo organisation</span>}
+    </span>
+  );
+}
 
 export function FileSwitch({ org }: { org?: string }) {
   return (
@@ -31,7 +56,7 @@ export function FileSwitch({ org }: { org?: string }) {
         <IconLock />
         <span>File a report</span>
       </a>
-      <p className="switch-note">Takes two to three minutes with the Lace wallet.</p>
+      <p className="switch-note">About two to three minutes with the Lace wallet.</p>
     </aside>
   );
 }
@@ -83,6 +108,7 @@ export function WarmupPage() {
           <span className="mark" aria-hidden="true" />
           Sotto
         </a>
+        <Station />
         <nav aria-label="Sections">
           {link('clock', 'Counter')}
           {link('report', 'Report')}
@@ -91,6 +117,7 @@ export function WarmupPage() {
         <span className="net">
           <span className="dot" aria-hidden="true" />
           Midnight preview
+          <LiveClock />
         </span>
       </header>
       <main id="main">{route === 'clock' ? <WarmupCounter /> : <WarmupDesk route={route} />}</main>

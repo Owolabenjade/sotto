@@ -1304,3 +1304,79 @@ textarea:focus {
     font-size: 38px;
   }
 }
+
+/* ---- second review round ---- */
+
+/* Unlit numerals read at 1x, behind the lit one. */
+.numeral {
+  color: rgb(170 158 142 / 0.16);
+}
+
+.tube.dark .numeral {
+  color: rgb(170 158 142 / 0.14);
+}
+
+/* Channel plates: equal height, label caps for the readout, phone labels. */
+.channel {
+  align-self: stretch;
+}
+
+.channel-plate {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.channel-readout {
+  font: 600 11px/1.3 var(--label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.channel-label .short,
+.channel-readout .short {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .channel-label .full,
+  .channel-readout .full {
+    display: none;
+  }
+  .channel-label .short,
+  .channel-readout .short {
+    display: inline;
+  }
+  .board-page > .instrument .channel-label,
+  .instrument .channel-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+  .board-page > .instrument .channel-readout,
+  .instrument .channel-readout {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  /* reserve the station row so the header never grows when the ledger lands */
+  .station {
+    min-height: 22px;
+  }
+}
+
+/* Nav rings sit in the gap, clear of the active item's border. */
+nav a + a {
+  margin-left: 12px;
+}
+
+nav a + a::before {
+  left: -10px;
+}
+
+/* Themed resize grip. */
+textarea::-webkit-resizer {
+  background:
+    linear-gradient(135deg, transparent 0 55%, var(--steel) 55% 62%, transparent 62% 72%, var(--steel) 72% 79%, transparent 79%);
+}

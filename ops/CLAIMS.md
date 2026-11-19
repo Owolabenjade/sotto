@@ -15,3 +15,5 @@ A `verified` row cites at least one evidence ID that exists in EVIDENCE.
 | C-007 | "Simulator suite ... 30 / 30 passed" | README Proof | E-007 | verified |
 | C-008 | "Local devnet ... 6 / 6 passed" | README Proof | E-004 | verified |
 | C-009 | "In the browser, the reporter's own Lace wallet pays, which can link reports to that wallet." | README What is real | DERIVED from the fee model; I-012 | verified |
+| C-010 | "The ledger never shows who filed a report or what it says: only the compliance officer can read a report, and nobody, {organisation} included, can see who wrote it." | UI counter lede | E-003 (no member key in case records; ciphertext only), E-009 (officer decrypts) | verified |
+| C-011 | "Planned: the organisation pays the fee (I-012). Today your own Lace wallet pays it, which can link your reports to that wallet." | UI Report Lace note, counter sealed list | DERIVED fee model; I-012 open | planned |

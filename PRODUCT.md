@@ -24,7 +24,7 @@ Verified insider, unknown person, public clock. Hosted hotlines ask reporters to
 
 ## Operating Context
 
-- Employees reach Sotto from a work or personal browser with the Lace wallet extension on the Midnight Preview network; a local proof server (Docker) is required today. Filing takes one to three minutes, most of it zero-knowledge proving.
+- Employees reach Sotto from a work or personal browser with the Lace wallet extension on the Midnight Preview network; a local proof server (Docker) is required today. Filing takes about two to three minutes (165 s observed, E-009), most of it zero-knowledge proving.
 - The employee creates a credential in the browser, gives the officer only its fingerprint (the member key), and must keep a backup file to read replies later.
 - The officer works from the officer desk (browser) or the officer CLI script.
 - Verifiers open the public board with no wallet; it reads the Midnight indexer and refreshes every 20 seconds.
