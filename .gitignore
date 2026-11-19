@@ -9,3 +9,4 @@ dist/
 .DS_Store
 .demo/
 .wallet-state/
+.claude/skills/impeccable/

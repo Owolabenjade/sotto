@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
+// Sotto UI. Visual world: a station departure board. On the public board the
+// world owns the page; on the Report and Officer screens it lends type,
+// palette, density and one move (rows that flip in when their state changes).
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { x25519 } from '@noble/curves/ed25519.js';
 import { type Ledger } from '../../contract/browser';
@@ -17,6 +20,7 @@ import {
   type MemberCredential,
   type OfficerKeys,
 } from './keys';
+import { IconCheck, IconCopy, IconDownload, IconLock, IconSend } from './icons';
 
 type Route = 'clock' | 'report' | 'officer';
 
@@ -33,19 +37,21 @@ const contractFromUrl = (): string => {
 // ---- formatting ----
 
 const DAY = 86400;
-const fmtDate = (s: number) =>
-  new Date(s * 1000).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const nowSecs = () => Math.floor(Date.now() / 1000);
+const fmtDay = (s: number) => new Date(s * 1000).toLocaleDateString(undefined, { day: '2-digit', month: 'short' });
+const fmtTime = (s: number) => new Date(s * 1000).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+const fmtWhen = (s: number) => `${fmtDay(s)} ${fmtTime(s)}`;
 const fmtSpan = (secs: number) => {
   const a = Math.abs(secs);
   if (a < 3600) return `${Math.max(1, Math.round(a / 60))} min`;
   if (a < 2 * DAY) return `${Math.round(a / 3600)} h`;
-  return `${Math.round(a / DAY)} days`;
+  return `${Math.round(a / DAY)} d`;
 };
+const fmtSpanLong = (secs: number) => fmtSpan(secs).replace(/ d$/, ' days').replace(/ h$/, ' hours');
 const shortId = (hex: string) => `${hex.slice(0, 6)}…${hex.slice(-4)}`;
-const nowSecs = () => Math.floor(Date.now() / 1000);
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-// ---- data hook ----
+// ---- data ----
 
 function useChannel(address: string) {
   const [l, setL] = useState<Ledger | null>(null);
@@ -77,19 +83,25 @@ function useChannel(address: string) {
   return { l, view, error, readAt, loading, refresh };
 }
 
-// ---- shared controls ----
+function useNow(intervalMs = 1000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(t);
+  }, [intervalMs]);
+  return now;
+}
 
-/**
- * A button for an operation that may take a minute. While it runs, the button
- * names the operation and a live region below it reports each step with the
- * elapsed time; on failure it says what failed.
- */
+// ---- controls ----
+
+/** A button for an operation that may take a minute, with step-by-step progress. */
 function Action(props: {
   children: ReactNode;
   run: (progress: Progress) => unknown | Promise<unknown>;
   busyLabel?: string;
   kind?: 'primary' | 'quiet';
   disabled?: boolean;
+  icon?: ReactNode;
 }) {
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState<string | null>(null);
@@ -126,18 +138,59 @@ function Action(props: {
           }
         }}
       >
-        {busy ? props.busyLabel ?? 'Working…' : props.children}
+        {busy ? <span className="spinner" aria-hidden="true" /> : props.icon}
+        <span>{busy ? props.busyLabel ?? 'Working…' : props.children}</span>
       </button>
       <span className="status-line" aria-live="polite">
         {busy && step && (
           <>
-            {step} <span className="muted">· {elapsed}s</span>
+            {step} <span className="elapsed">{elapsed}s</span>
           </>
         )}
       </span>
       {err && (
         <span className="error" role="alert">
           {err}
+        </span>
+      )}
+    </span>
+  );
+}
+
+/** A quick action with visible confirmation: the button flips to its done state for two seconds. */
+function DoneButton(props: { label: string; doneLabel: string; announce: string; icon: ReactNode; onClick: () => unknown | Promise<unknown> }) {
+  const [done, setDone] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  return (
+    <span className="action">
+      <button
+        type="button"
+        className={`btn quiet${done ? ' done' : ''}`}
+        onClick={async () => {
+          try {
+            await props.onClick();
+            setFailed(false);
+            setDone(true);
+            window.clearTimeout(timer.current);
+            timer.current = window.setTimeout(() => setDone(false), 2000);
+          } catch {
+            setFailed(true);
+          }
+        }}
+      >
+        <span className="flip-face" key={done ? 'done' : 'idle'}>
+          {done ? <IconCheck /> : props.icon}
+          <span>{done ? props.doneLabel : props.label}</span>
+        </span>
+      </button>
+      <span className="sr-only" aria-live="polite">
+        {done ? props.announce : ''}
+      </span>
+      {failed && (
+        <span className="error" role="alert">
+          Your browser blocked this. Select the key and copy it by hand.
         </span>
       )}
     </span>
@@ -179,92 +232,107 @@ function Field(props: {
   );
 }
 
-const StatusTag = ({ c }: { c: CaseView }) => {
-  if (c.status === 'closed') return <span className="tag">Closed</span>;
-  if (c.status === 'acknowledged') return <span className="tag ok">Acknowledged</span>;
-  return c.ackDue < nowSecs() ? <span className="tag late">Overdue</span> : <span className="tag">Awaiting acknowledgement</span>;
+type Board = 'ontime' | 'due' | 'delayed' | 'closed';
+
+const boardState = (c: CaseView): Board => {
+  if (c.status === 'closed') return 'closed';
+  if (c.ackAt !== null) return c.ackAt <= c.ackDue ? 'ontime' : 'delayed';
+  return c.ackDue < nowSecs() ? 'delayed' : 'due';
 };
 
-// ---- public response clock ----
+const STATE_LABEL: Record<Board, string> = { ontime: 'On time', due: 'Waiting', delayed: 'Delayed', closed: 'Closed' };
 
-/**
- * One deadline window drawn as a track: the window runs from `start` to
- * `due`. The fill reaches `done` (or now, if still running); a tick marks the
- * deadline; a fill past the tick is late. The text beside it says the same
- * thing in words, so the bar is never the only carrier of meaning.
- */
-function Window(props: { label: string; start: number | null; due: number | null; done: number | null; pending: string }) {
-  const now = nowSecs();
-  if (props.start === null || props.due === null) {
-    return (
-      <div className="window waiting">
-        <span className="window-label">{props.label}</span>
-        <span className="track" aria-hidden="true" />
-        <span className="window-text muted">{props.pending}</span>
-      </div>
-    );
-  }
-  const length = props.due - props.start;
-  const end = props.done ?? now;
-  const span = Math.max(length, end - props.start);
-  const fill = Math.min(1, (end - props.start) / span);
-  const tick = length / span;
-  const late = end > props.due;
-  const text = props.done
-    ? `${late ? `${fmtSpan(props.done - props.due)} late` : `after ${fmtSpan(props.done - props.start)}`}`
-    : late
-      ? `${fmtSpan(now - props.due)} overdue`
-      : `due in ${fmtSpan(props.due - now)}`;
-  const state = late ? 'late' : props.done ? 'ok' : 'running';
-  return (
-    <div className={`window ${state}`}>
-      <span className="window-label">{props.label}</span>
-      <span className="track" aria-hidden="true">
-        <span className="fill" style={{ width: `${Math.max(fill * 100, 1.5)}%` }} />
-        <span className="tick" style={{ left: `${tick * 100}%` }} />
-      </span>
-      <span className="window-text">{text}</span>
-    </div>
-  );
-}
+const Status = ({ c }: { c: CaseView }) => {
+  const s = boardState(c);
+  return <span className={`status ${s}`}>{STATE_LABEL[s]}</span>;
+};
+
+// ---- public board ----
 
 function Clock({ view, address, readAt }: { view: ChannelView; address: string; readAt: number | null }) {
   const acked = view.ackOnTime + view.ackLate;
-  const closed = view.closedOnTime + view.closedLate;
   const behind = view.ackLate + view.overdue;
   const waiting = view.cases.filter((c) => c.status === 'open' && c.ackDue >= nowSecs());
   const nextDue = waiting.length > 0 ? Math.min(...waiting.map((c) => c.ackDue)) : null;
 
-  const [headline, detail] =
+  const [headline, notice] =
     view.cases.length === 0
-      ? [`${view.orgName}’s reporting channel is open.`, 'No reports yet.']
+      ? ['Channel open. No reports yet.', 'When an employee files a report it appears on this board within a minute, with its deadlines.']
       : behind > 0
-        ? [`${view.orgName} is late on ${plural(behind, 'report', 'reports')}.`, `${view.overdue} overdue now, ${view.ackLate} acknowledged after the ${fmtSpan(view.ackSecs)} deadline.`]
+        ? [`${plural(behind, 'report', 'reports')} late.`, `${view.overdue} overdue now · ${view.ackLate} acknowledged after the ${fmtSpanLong(view.ackSecs)} deadline.`]
         : nextDue !== null
-          ? [`${view.orgName} has no late reports.`, `${plural(waiting.length, 'report is', 'reports are')} awaiting acknowledgement, the next due in ${fmtSpan(nextDue - nowSecs())}.`]
-          : [`${view.orgName} has answered every report on time.`, `${plural(view.cases.length, 'report', 'reports')}, all acknowledged within ${fmtSpan(view.ackSecs)}.`];
+          ? ['No late reports.', `${plural(waiting.length, 'report', 'reports')} waiting for acknowledgement · next due in ${fmtSpanLong(nextDue - nowSecs())}.`]
+          : ['Every report answered on time.', `${plural(view.cases.length, 'report', 'reports')}, all acknowledged within ${fmtSpanLong(view.ackSecs)}.`];
 
   return (
-    <section>
-      <div className="hero">
-        <div>
-          <h1 className="display">{headline}</h1>
-          <p className="detail">{detail}</p>
-          <p className="lede">
-            Every figure here is read from the public Midnight ledger. Nobody, including {view.orgName}, can see who filed a report or what it
-            says. Anyone can see whether it was answered in time.
-          </p>
-        </div>
-        <dl className="figures">
+    <section className="board-page">
+      <div className="board-head">
+        <h1>{headline}</h1>
+        <a className="btn" href="#/report">
+          <IconLock />
+          <span>File a report</span>
+        </a>
+      </div>
+      <p className={`notice${behind > 0 ? ' alarm' : ''}`} role="status">
+        {notice}
+      </p>
+
+      <div className="board" role="region" aria-label="Response board">
+        {view.cases.length === 0 ? (
+          <p className="board-empty">No reports on the board.</p>
+        ) : (
+          <table className="departures">
+            <caption className="sr-only">Every report on this channel, with its acknowledgement and feedback deadlines</caption>
+            <thead>
+              <tr>
+                <th scope="col">Case</th>
+                <th scope="col">Received</th>
+                <th scope="col">Ack due</th>
+                <th scope="col">Acknowledged</th>
+                <th scope="col" className="num">
+                  Delay
+                </th>
+                <th scope="col">Feedback due</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {view.cases.map((c, i) => {
+                const s = boardState(c);
+                const delay = c.ackAt !== null ? c.ackAt - c.ackDue : nowSecs() - c.ackDue;
+                return (
+                  <tr key={`${c.idHex}-${s}-${c.messageCount}`} className={`flip ${s}`} style={{ ['--i' as string]: i }}>
+                    <td className="mono" data-label="Case">
+                      {shortId(c.idHex)}
+                    </td>
+                    <td data-label="Received">{fmtWhen(c.openedAt)}</td>
+                    <td data-label="Ack due">{fmtWhen(c.ackDue)}</td>
+                    <td data-label="Acknowledged">{c.ackAt ? `${fmtWhen(c.ackAt)} · after ${fmtSpan(c.ackAt - c.openedAt)}` : `in ${fmtSpan(c.ackDue - nowSecs())}`}</td>
+                    <td data-label="Delay" className={`num delay${delay > 0 ? ' late' : ''}`}>
+                      {delay > 0 ? `+${fmtSpan(delay)}` : c.ackAt ? '+0' : '—'}
+                    </td>
+                    <td data-label="Feedback due">
+                      {c.closedAt ? `closed ${fmtDay(c.closedAt)}` : c.ackAt ? `${fmtDay(c.feedbackDue)} · in ${fmtSpan(c.feedbackDue - nowSecs())}` : 'after acknowledgement'}
+                    </td>
+                    <td data-label="Status">
+                      <Status c={c} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+        <dl className="board-foot">
           <div>
-            <dt>Reports received</dt>
+            <dt>Reports</dt>
             <dd>{view.cases.length}</dd>
           </div>
           <div>
-            <dt>Acknowledged within {fmtSpan(view.ackSecs)}</dt>
+            <dt>Acknowledged within {fmtSpanLong(view.ackSecs)}</dt>
             <dd>
               {view.ackOnTime}
-              {acked > 0 && <small> of {acked}</small>}
+              {acked > 0 ? ` / ${acked}` : ''}
             </dd>
           </div>
           <div>
@@ -275,70 +343,38 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
             <dt>Feedback within 3 months</dt>
             <dd>
               {view.closedOnTime}
-              {closed > 0 && <small> of {closed}</small>}
+              {view.closedOnTime + view.closedLate > 0 ? ` / ${view.closedOnTime + view.closedLate}` : ''}
             </dd>
           </div>
         </dl>
       </div>
 
-      <h2>The clock, case by case</h2>
-      {view.cases.length === 0 ? (
-        <p className="empty">When an employee files a report it appears here within a minute, with both deadlines running.</p>
-      ) : (
-        <ol className="clock-list">
-          {view.cases.map((c) => {
-            const ackStart = c.ackAt !== null && c.ackAt <= c.ackDue ? c.ackAt : c.ackDue;
-            return (
-              <li key={c.idHex} className="clock-row">
-                <div className="clock-meta">
-                  <span className="mono">Case {shortId(c.idHex)}</span>
-                  <StatusTag c={c} />
-                  <span className="muted">
-                    Opened {fmtDate(c.openedAt)} · {plural(c.messageCount, 'message', 'messages')}
-                  </span>
-                </div>
-                <div className="clock-windows">
-                  <Window label={`Acknowledge · ${fmtSpan(view.ackSecs)}`} start={c.openedAt} due={c.ackDue} done={c.ackAt} pending="" />
-                  <Window
-                    label="Feedback · 3 months"
-                    start={c.ackAt !== null ? ackStart : null}
-                    due={c.ackAt !== null ? c.feedbackDue : null}
-                    done={c.closedAt}
-                    pending="starts at acknowledgement"
-                  />
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-      )}
-
-      <h2>What the ledger shows, and what it never shows</h2>
-      <div className="ledger-split">
-        <div>
-          <h3>Public</h3>
+      <div className="split-panels">
+        <section aria-labelledby="pub">
+          <h2 id="pub">On the board, for anyone</h2>
           <ul>
             <li>When each report arrived, proved to within 15 minutes of block time</li>
             <li>When it was acknowledged and closed, and whether that was on time</li>
             <li>That the reporter was a current member at the time</li>
             <li>Fingerprints of registered members, and how many were revoked</li>
           </ul>
-        </div>
-        <div>
-          <h3>Never public</h3>
+        </section>
+        <section aria-labelledby="sealed">
+          <h2 id="sealed">Sealed, for nobody else</h2>
           <ul>
             <li>Which member filed a report</li>
-            <li>What any report or reply says: it is sealed to its recipient</li>
-            <li>A member's secret, which never leaves their browser</li>
+            <li>What any report or reply says</li>
+            <li>A member’s secret, which never leaves their browser</li>
             <li>Whether two reports in different 30-day periods came from the same person</li>
           </ul>
-        </div>
+        </section>
       </div>
 
       <p className="provenance">
-        {plural(view.enrolled, 'current member', 'current members')} registered
+        {plural(view.enrolled, 'current member', 'current members')}
         {view.revoked > 0 ? `, ${view.revoked} revoked` : ''}. Read from Midnight {NETWORK}
-        {readAt ? ` at ${new Date(readAt * 1000).toLocaleTimeString()}` : ''}, contract <span className="mono">{shortId(address)}</span>.
+        {readAt ? ` at ${new Date(readAt * 1000).toLocaleTimeString()}` : ''}, contract <span className="mono">{shortId(address)}</span>. The board
+        refreshes every 20 seconds.
       </p>
     </section>
   );
@@ -363,26 +399,27 @@ const remember = (caseHex: string, seq: number, text: string) => {
   }
 };
 
-/**
- * Starts downloading the proving keys a member's circuits need as soon as the
- * Report page opens, so the browser cache already holds them when Lace asks
- * for a proof. FetchZkConfigProvider requests the same URLs.
- */
+/** Warms the browser cache with the proving keys a member's circuits need. */
 const prefetched = new Set<string>();
 function prefetchKeys(circuits: string[]) {
   for (const c of circuits) {
     for (const path of [`keys/${c}.prover`, `keys/${c}.verifier`, `zkir/${c}.bzkir`]) {
       if (prefetched.has(path)) continue;
       prefetched.add(path);
-      void fetch(`${window.location.origin}/${path}`).then((r) => r.arrayBuffer()).catch(() => prefetched.delete(path));
+      void fetch(`${window.location.origin}/${path}`)
+        .then((r) => r.arrayBuffer())
+        .catch(() => prefetched.delete(path));
     }
   }
 }
 
 const LaceNote = () => (
   <p className="lace-note">
-    When Lace asks you to approve, it shows the transaction’s public part: the contract, the case id, the timestamps and your text as
-    ciphertext. That is exactly what the ledger will show anyone. Your credential and your words are not in it.
+    <IconLock />
+    <span>
+      When Lace asks you to approve, it shows the transaction’s public part: the case number, the times and your text as scrambled ciphertext.
+      That is exactly what the board will show anyone. Your credential and your words are not in it.
+    </span>
   </p>
 );
 
@@ -398,21 +435,26 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
 
   if (!cred) {
     return (
-      <section className="narrow">
+      <section className="work narrow">
         <h1>Report as a verified insider</h1>
         <ol className="steps">
-          <li>Create a credential. It is a secret made in this browser and never sent anywhere.</li>
-          <li>Give your compliance officer its fingerprint, the member key. They register it once.</li>
-          <li>File reports. Each one proves you are a current member without saying which one.</li>
+          <li>
+            <strong>Create a credential.</strong> A secret made in this browser. It never leaves it.
+          </li>
+          <li>
+            <strong>Give your compliance officer the member key.</strong> It is a fingerprint of the credential. They register it once.
+          </li>
+          <li>
+            <strong>File reports.</strong> Each one proves you are a current member without saying which one.
+          </li>
         </ol>
-        <p className="hint">
-          The officer can't work out who you are from the member key, and can't tell which reports are yours. Back up the credential: without it
-          you can't read replies.
-        </p>
-        <Action run={() => setCred(createMember())}>Create my credential</Action>
+        <p className="hint">The officer can't work out who you are from the member key, and can't tell which reports are yours.</p>
+        <Action run={() => setCred(createMember())} icon={<IconLock />}>
+          Create my credential
+        </Action>
         <details className="aside">
           <summary>I already have a credential</summary>
-          <Field label="Credential" hint="64 hex characters, from your backup file." value={importing} onChange={setImporting} mono />
+          <Field label="Credential" hint="64 characters, from your backup file." value={importing} onChange={setImporting} mono />
           <button
             type="button"
             className="btn quiet"
@@ -457,55 +499,72 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
   };
 
   return (
-    <section className="narrow">
+    <section className="work">
       <h1>Your reports</h1>
-      <div className="credential">
-        <p className="label">Your member key, for your compliance officer</p>
-        <p className="mono wrap">{cred.memberKeyHex}</p>
-        <p className={enrolled ? 'ok-text' : 'hint'}>
-          {enrolled ? 'Registered as a current member of this channel.' : 'Not registered yet. Send the member key above to your compliance officer.'}
-        </p>
-        <span className="row">
-          <button type="button" className="btn quiet" onClick={() => navigator.clipboard?.writeText(cred.memberKeyHex)}>
-            Copy member key
-          </button>
-          <button type="button" className="btn quiet" onClick={() => download('sotto-credential.txt', bytesToHex(cred.secretKey))}>
-            Back up credential
-          </button>
-          <button
-            type="button"
-            className="btn quiet"
-            onClick={() => {
-              forgetMember();
-              setCred(null);
-            }}
-          >
-            Remove from this browser
-          </button>
-        </span>
-      </div>
+      <div className="work-grid">
+        <div>
+          <div className={`credential${enrolled ? ' ok' : ''}`}>
+            <p className="label">Your member key</p>
+            <p className="key mono">{cred.memberKeyHex}</p>
+            <p className="state">
+              {enrolled ? 'Registered: you can file reports on this channel.' : 'Not registered yet. Send this member key to your compliance officer.'}
+            </p>
+            <div className="row">
+              <DoneButton
+                label="Copy member key"
+                doneLabel="Copied"
+                announce="Member key copied to the clipboard"
+                icon={<IconCopy />}
+                onClick={() => navigator.clipboard.writeText(cred.memberKeyHex)}
+              />
+              <DoneButton
+                label="Back up credential"
+                doneLabel="Saved"
+                announce="Credential backup file downloaded"
+                icon={<IconDownload />}
+                onClick={() => download('sotto-credential.txt', bytesToHex(cred.secretKey))}
+              />
+              <button
+                type="button"
+                className="btn quiet subtle"
+                onClick={() => {
+                  forgetMember();
+                  setCred(null);
+                }}
+              >
+                Remove from this browser
+              </button>
+            </div>
+          </div>
 
-      {enrolled && !filedThisPeriod && (
-        <div className="compose">
-          <Field
-            label="What happened"
-            rows={7}
-            value={text}
-            onChange={setText}
-            placeholder="What you saw, when and where."
-            hint={`Sealed in this browser to the officer's key. The ledger stores only ciphertext, padded so its length gives nothing away. Leave out details only you could know. One report per ${fmtSpan(view.periodSecs)}.`}
-          />
-          <LaceNote />
-          <Action run={file} busyLabel="Filing…" disabled={text.trim().length < 10}>
-            Seal and file report
-          </Action>
+          {enrolled && !filedThisPeriod && (
+            <div className="compose">
+              <Field
+                label="What happened"
+                rows={7}
+                value={text}
+                onChange={setText}
+                placeholder="What you saw, when and where."
+                hint={`Sealed in this browser so only the compliance officer can read it. Leave out details only you could know. One report per ${fmtSpanLong(view.periodSecs)}.`}
+              />
+              <LaceNote />
+              <Action run={file} busyLabel="Filing…" disabled={text.trim().length < 10} icon={<IconSend />}>
+                Seal and file report
+              </Action>
+            </div>
+          )}
+          {enrolled && filedThisPeriod && (
+            <p className="hint">You have filed this period’s report. Your case is on the right; you can still answer the officer there.</p>
+          )}
         </div>
-      )}
-      {enrolled && filedThisPeriod && <p className="hint">You have filed this period's report. You can still answer the officer below.</p>}
-
-      {myCases.map((c) => (
-        <CaseThread key={c.idHex} l={l} c={c} address={address} as={{ kind: 'reporter', secretKey: cred.secretKey }} refresh={refresh} />
-      ))}
+        <div>
+          <h2 className="work-sub">Your cases</h2>
+          {myCases.length === 0 && <p className="empty">No reports from this credential yet.</p>}
+          {myCases.map((c) => (
+            <CaseThread key={c.idHex} l={l} c={c} address={address} as={{ kind: 'reporter', secretKey: cred.secretKey }} refresh={refresh} />
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -544,18 +603,18 @@ function CaseThread({ l, c, address, as, refresh }: { l: Ledger; c: CaseView; ad
 
   const canReply = officer ? c.status === 'acknowledged' : c.status !== 'closed';
   const deadline = c.ackAt
-    ? `Acknowledged after ${fmtSpan(c.ackAt - c.openedAt)}`
+    ? `Acknowledged after ${fmtSpanLong(c.ackAt - c.openedAt)}`
     : c.ackDue >= nowSecs()
-      ? `Acknowledgement due in ${fmtSpan(c.ackDue - nowSecs())}`
-      : `Acknowledgement ${fmtSpan(nowSecs() - c.ackDue)} late`;
+      ? `Acknowledgement due in ${fmtSpanLong(c.ackDue - nowSecs())}`
+      : `Acknowledgement ${fmtSpanLong(nowSecs() - c.ackDue)} late`;
 
   return (
     <article className="case" aria-label={`Case ${shortId(c.idHex)}`}>
-      <header>
-        <span className="mono">Case {shortId(c.idHex)}</span>
-        <StatusTag c={c} />
+      <header className="flip" key={`${c.status}-${c.messageCount}`}>
+        <span className="mono case-no">{shortId(c.idHex)}</span>
+        <Status c={c} />
         <span className="muted">
-          Opened {fmtDate(c.openedAt)} · {deadline}
+          Opened {fmtWhen(c.openedAt)} · {deadline}
         </span>
       </header>
       <ol className="thread">
@@ -563,7 +622,7 @@ function CaseThread({ l, c, address, as, refresh }: { l: Ledger; c: CaseView; ad
           <li key={m.seq} className={m.fromReporter ? 'from-reporter' : 'from-officer'}>
             <span className="who">
               {m.fromReporter ? (officer ? 'Reporter' : 'You') : officer ? 'You' : 'Compliance officer'}
-              <span className="muted"> · {fmtDate(m.at)}</span>
+              <span className="muted"> · {fmtWhen(m.at)}</span>
             </span>
             <p>{m.text ?? <span className="muted">Sealed to the other side. Only they can read it.</span>}</p>
           </li>
@@ -598,13 +657,9 @@ function CaseThread({ l, c, address, as, refresh }: { l: Ledger; c: CaseView; ad
       )}
       {canReply && (
         <div className="compose">
-          <Field
-            label={officer ? 'Follow-up question to the reporter' : 'Your answer to the officer'}
-            rows={3}
-            value={reply}
-            onChange={setReply}
-          />
-          <Action run={send} busyLabel="Sending…" disabled={reply.trim().length === 0}>
+          <Field label={officer ? 'Follow-up question to the reporter' : 'Your answer to the officer'} rows={3} value={reply} onChange={setReply} />
+          {!officer && <LaceNote />}
+          <Action run={send} busyLabel="Sending…" disabled={reply.trim().length === 0} icon={<IconSend />}>
             {officer ? 'Seal and send to reporter' : 'Seal and send to officer'}
           </Action>
         </div>
@@ -628,8 +683,8 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
 
   if (!keys) {
     return (
-      <section className="narrow">
-        <h1>Officer console</h1>
+      <section className="work narrow">
+        <h1>Officer desk</h1>
         <p className="lede">Load the officer key file for this channel. The keys stay in this browser.</p>
         <Field label="Officer key file" hint='JSON with "secretKey" and "boxSecretKey".' rows={6} value={keyFile} onChange={setKeyFile} mono />
         <button
@@ -659,26 +714,26 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
   const valid = /^[0-9a-f]{64}$/i.test(newMember.trim());
 
   return (
-    <section>
-      <h1>Officer console</h1>
-      <p className="lede">
+    <section className="work">
+      <h1>Officer desk</h1>
+      <p className={`notice${view.overdue > 0 ? ' alarm' : ''}`} role="status">
         {waiting.length === 0
           ? 'Nothing waiting for acknowledgement.'
           : `${plural(waiting.length, 'case is', 'cases are')} waiting for acknowledgement. The oldest is due ${
-              waiting.at(-1)!.ackDue >= nowSecs() ? `in ${fmtSpan(waiting.at(-1)!.ackDue - nowSecs())}` : 'now'
+              waiting.at(-1)!.ackDue >= nowSecs() ? `in ${fmtSpanLong(waiting.at(-1)!.ackDue - nowSecs())}` : 'now'
             }.`}
       </p>
-      <div className="split">
+      <div className="work-grid wide-left">
         <div>
-          <h2>Cases</h2>
+          <h2 className="work-sub">Cases</h2>
           {view.cases.length === 0 && <p className="empty">No reports yet.</p>}
           {view.cases.map((c) => (
             <CaseThread key={c.idHex} l={l} c={c} address={address} as={{ kind: 'officer', keys }} refresh={refresh} />
           ))}
         </div>
         <aside>
-          <h2>Members</h2>
-          <Field label="Member key from an employee" hint="64 hex characters." value={newMember} onChange={setNewMember} mono />
+          <h2 className="work-sub">Members</h2>
+          <Field label="Member key from an employee" hint="64 characters." value={newMember} onChange={setNewMember} mono />
           <Action
             busyLabel="Registering…"
             disabled={!valid}
@@ -714,7 +769,7 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
           </ul>
           <button
             type="button"
-            className="btn quiet"
+            className="btn quiet subtle"
             onClick={() => {
               forgetOfficer();
               setKeys(null);
@@ -730,13 +785,25 @@ function Officer({ l, view, address, refresh }: { l: Ledger; view: ChannelView; 
 
 // ---- shell ----
 
+function LiveClock() {
+  const now = useNow();
+  return (
+    <time className="live-clock" dateTime={new Date(now).toISOString()} aria-label="Current time">
+      {new Date(now).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+    </time>
+  );
+}
+
 export default function App() {
   const [route, setRoute] = useState<Route>(routeFromHash);
   const [address] = useState(contractFromUrl);
   const { l, view, error, loading, readAt, refresh } = useChannel(address);
 
   useEffect(() => {
-    const on = () => setRoute(routeFromHash());
+    const on = () => {
+      setRoute(routeFromHash());
+      window.scrollTo(0, 0);
+    };
     window.addEventListener('hashchange', on);
     return () => window.removeEventListener('hashchange', on);
   }, []);
@@ -753,30 +820,35 @@ export default function App() {
         Skip to content
       </a>
       <header className="top">
-        <a className="wordmark" href="#/clock">
+        <a className="wordmark" href="#/clock" aria-label="Sotto, response board">
+          <span className="mark" aria-hidden="true" />
           Sotto
         </a>
+        {view && <span className="station">{view.orgName}</span>}
         <nav aria-label="Sections">
-          {nav('clock', 'Response clock')}
+          {nav('clock', 'Board')}
           {nav('report', 'Report')}
           {nav('officer', 'Officer')}
         </nav>
+        <span className="net">
+          <span className={`dot${error ? ' off' : ''}`} aria-hidden="true" />
+          Midnight {NETWORK}
+          <LiveClock />
+        </span>
       </header>
       <main id="main">
         {!address && <p className="error">No channel address. Add ?c=&lt;contract address&gt; to the URL.</p>}
         {address && error && !l && (
-          <div className="notice">
-            <p className="error" role="alert">
-              Couldn't read the channel from the Midnight indexer: {error}
-            </p>
+          <div className="notice alarm">
+            <p role="alert">Couldn't read the channel from the Midnight indexer: {error}</p>
             <Action kind="quiet" run={refresh}>
               Try again
             </Action>
           </div>
         )}
         {address && !l && !error && (
-          <p className="muted" aria-live="polite">
-            {loading ? 'Reading the channel from the Midnight indexer…' : ''}
+          <p className="loading" aria-live="polite">
+            {loading ? 'Reading the board from the Midnight ledger…' : ''}
           </p>
         )}
         {l && view && route === 'clock' && <Clock view={view} address={address} readAt={readAt} />}
@@ -786,7 +858,7 @@ export default function App() {
       <footer>
         <p>
           Sotto is open source (<a href="https://github.com/Owolabenjade/sotto">Apache-2.0</a>) and runs on{' '}
-          <a href="https://midnight.network">Midnight</a>. Reading this page needs nothing. Filing and answering need the Lace wallet on the{' '}
+          <a href="https://midnight.network">Midnight</a>. Reading the board needs nothing. Filing and answering need the Lace wallet on the{' '}
           {NETWORK} network.
         </p>
       </footer>
