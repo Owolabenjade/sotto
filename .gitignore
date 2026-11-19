@@ -10,3 +10,4 @@ dist/
 .demo/
 .wallet-state/
 .claude/skills/impeccable/
+.impeccable/reference/

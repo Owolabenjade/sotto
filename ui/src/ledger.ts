@@ -5,24 +5,15 @@ import { ContractState, fromHex } from '@midnight-ntwrk/midnight-js-protocol/v9/
 import { CaseStatus, ledger, type Ledger } from '../../contract/browser';
 import { bytesToHex, messageKey } from '../../src/crypto';
 
+import { takeStateHex } from './prefetch';
+
 export const NETWORK = import.meta.env.VITE_NETWORK_ID ?? 'preview';
-export const INDEXER_URL = import.meta.env.VITE_INDEXER_URL ?? 'https://indexer.preview.midnight.network/api/v4/graphql';
+export { INDEXER_URL } from './prefetch';
 export const DEFAULT_CONTRACT = import.meta.env.VITE_CONTRACT_ADDRESS ?? '';
 export const ORG_NAME = import.meta.env.VITE_ORG_NAME ?? '';
 
-const QUERY = `query ContractState($address: HexEncoded!) { contractAction(address: $address) { state } }`;
-
 export async function fetchLedger(address: string): Promise<Ledger> {
-  const res = await fetch(INDEXER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: QUERY, variables: { address } }),
-  });
-  if (!res.ok) throw new Error(`The indexer answered ${res.status}`);
-  const gql = await res.json();
-  if (gql.errors) throw new Error(gql.errors[0]?.message ?? 'Indexer query failed');
-  const hex = gql.data?.contractAction?.state;
-  if (!hex) throw new Error('No Sotto channel at this address on this network');
+  const hex = await takeStateHex(address);
   return ledger(ContractState.deserialize(fromHex(hex)).data);
 }
 

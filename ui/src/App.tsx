@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-// Sotto UI. Visual world: a station departure board. On the public board the
-// world owns the page; on the Report and Officer screens it lends type,
-// palette, density and one move (rows that flip in when their state changes).
+// Sotto UI. Visual world: a nixie-tube laboratory counter. On the public
+// counter the world owns the page; on the Report and Officer screens it lends
+// type, palette, density and one move (numerals that cross-fade when a value
+// changes).
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { x25519 } from '@noble/curves/ed25519.js';
 import { type Ledger } from '../../contract/browser';
@@ -21,6 +22,8 @@ import {
   type OfficerKeys,
 } from './keys';
 import { IconCheck, IconCopy, IconDownload, IconLock, IconSend } from './icons';
+import { Bank } from './tubes';
+import { WarmupBody } from './warmup';
 
 type Route = 'clock' | 'report' | 'officer';
 
@@ -244,7 +247,12 @@ const STATE_LABEL: Record<Board, string> = { ontime: 'On time', due: 'Waiting', 
 
 const Status = ({ c }: { c: CaseView }) => {
   const s = boardState(c);
-  return <span className={`status ${s}`}>{STATE_LABEL[s]}</span>;
+  return (
+    <span className={`status ${s}`}>
+      <span className="lamp" aria-hidden="true" />
+      {STATE_LABEL[s]}
+    </span>
+  );
 };
 
 // ---- public board ----
@@ -254,67 +262,95 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
   const behind = view.ackLate + view.overdue;
   const waiting = view.cases.filter((c) => c.status === 'open' && c.ackDue >= nowSecs());
   const nextDue = waiting.length > 0 ? Math.min(...waiting.map((c) => c.ackDue)) : null;
+  const daysToNext = nextDue !== null ? Math.max(0, Math.ceil((nextDue - nowSecs()) / DAY)) : null;
 
-  const [headline, notice] =
+  const [headline, detail] =
     view.cases.length === 0
-      ? ['Channel open. No reports yet.', 'When an employee files a report it appears on this board within a minute, with its deadlines.']
+      ? ['Channel open. No reports yet.', 'When an employee files a report, the counter starts its 7-day acknowledgement clock within a minute.']
       : behind > 0
-        ? [`${plural(behind, 'report', 'reports')} late.`, `${view.overdue} overdue now · ${view.ackLate} acknowledged after the ${fmtSpanLong(view.ackSecs)} deadline.`]
+        ? [`${plural(behind, 'report', 'reports')} late.`, `${view.overdue} overdue now, ${view.ackLate} acknowledged after the ${fmtSpanLong(view.ackSecs)} deadline.`]
         : nextDue !== null
-          ? ['No late reports.', `${plural(waiting.length, 'report', 'reports')} waiting for acknowledgement · next due in ${fmtSpanLong(nextDue - nowSecs())}.`]
+          ? ['No late reports.', `${plural(waiting.length, 'report is', 'reports are')} waiting for acknowledgement. The next is due in ${fmtSpanLong(nextDue - nowSecs())}.`]
           : ['Every report answered on time.', `${plural(view.cases.length, 'report', 'reports')}, all acknowledged within ${fmtSpanLong(view.ackSecs)}.`];
 
   return (
     <section className="board-page">
-      <div className="board-head">
-        <h1>{headline}</h1>
-        <a className="btn" href="#/report">
-          <IconLock />
-          <span>File a report</span>
-        </a>
+      <div className="hero">
+        <div className="hero-copy">
+          <h1>{headline}</h1>
+          <p className="detail">{detail}</p>
+          <p className="lede">
+            Every number on this counter is read from the public Midnight ledger. Nobody, {view.orgName} included, can see who filed a report or
+            what it says. Anyone can see whether it was answered in time.
+          </p>
+        </div>
+        <aside className="panel switch-panel" aria-labelledby="file-title">
+          <h2 id="file-title">Seen something at {view.orgName}?</h2>
+          <p>File a sealed report. It proves you work here without saying who you are, and only the compliance officer can read it.</p>
+          <a className="btn" href="#/report">
+            <IconLock />
+            <span>File a report</span>
+          </a>
+          <p className="switch-note">Takes two to three minutes with the Lace wallet.</p>
+        </aside>
       </div>
-      <p className={`notice${behind > 0 ? ' alarm' : ''}`} role="status">
-        {notice}
-      </p>
 
-      <div className="board" role="region" aria-label="Response board">
+      <div className="banks" role="group" aria-label="Response counter">
+        <Bank value={view.cases.length} label="Reports received" spoken={`Reports received: ${view.cases.length}`} />
+        <Bank
+          value={view.ackOnTime}
+          label={
+            <>
+              Acknowledged on time
+              <span className="bank-sub">
+                {acked > 0 ? `of ${acked} · ` : ''}within {fmtSpanLong(view.ackSecs)}
+              </span>
+            </>
+          }
+          spoken={`Acknowledged within ${fmtSpanLong(view.ackSecs)}: ${view.ackOnTime}${acked > 0 ? ` of ${acked}` : ''}`}
+        />
+        <Bank value={view.overdue} label="Overdue now" spoken={`Overdue now: ${view.overdue}`} tone={view.overdue > 0 ? 'late' : undefined} />
+        <Bank
+          value={daysToNext}
+          label={daysToNext === null ? 'No deadline running' : 'Days to the next deadline'}
+          spoken={daysToNext === null ? 'No acknowledgement deadline running' : `Days to the next acknowledgement deadline: ${daysToNext}`}
+        />
+      </div>
+
+      <section className="panel cases-panel" aria-labelledby="cases-title">
+        <h2 id="cases-title">Cases on this channel</h2>
         {view.cases.length === 0 ? (
-          <p className="board-empty">No reports on the board.</p>
+          <p className="empty">No reports yet.</p>
         ) : (
-          <table className="departures">
+          <table className="cases">
             <caption className="sr-only">Every report on this channel, with its acknowledgement and feedback deadlines</caption>
             <thead>
               <tr>
                 <th scope="col">Case</th>
                 <th scope="col">Received</th>
-                <th scope="col">Ack due</th>
-                <th scope="col">Acknowledged</th>
-                <th scope="col" className="num">
-                  Delay
-                </th>
-                <th scope="col">Feedback due</th>
+                <th scope="col">Acknowledgement</th>
+                <th scope="col">Feedback</th>
                 <th scope="col">Status</th>
               </tr>
             </thead>
             <tbody>
-              {view.cases.map((c, i) => {
-                const s = boardState(c);
-                const delay = c.ackAt !== null ? c.ackAt - c.ackDue : nowSecs() - c.ackDue;
+              {view.cases.map((c) => {
+                const late = c.ackAt !== null ? c.ackAt > c.ackDue : nowSecs() > c.ackDue;
                 return (
-                  <tr key={`${c.idHex}-${s}-${c.messageCount}`} className={`flip ${s}`} style={{ ['--i' as string]: i }}>
-                    <td className="mono" data-label="Case">
+                  <tr key={c.idHex}>
+                    <td className="mono case-id" data-label="Case">
                       {shortId(c.idHex)}
                     </td>
                     <td data-label="Received">{fmtWhen(c.openedAt)}</td>
-                    <td data-label="Ack due">{fmtWhen(c.ackDue)}</td>
-                    <td data-label="Acknowledged" className={c.ackAt ? undefined : 'muted'}>
-                      {c.ackAt ? `${fmtWhen(c.ackAt)} · after ${fmtSpan(c.ackAt - c.openedAt)}` : 'Not yet'}
+                    <td data-label="Acknowledgement" className={late ? 'late-text' : undefined}>
+                      {c.ackAt
+                        ? `after ${fmtSpanLong(c.ackAt - c.openedAt)}${late ? `, ${fmtSpanLong(c.ackAt - c.ackDue)} late` : ''}`
+                        : late
+                          ? `${fmtSpanLong(nowSecs() - c.ackDue)} overdue`
+                          : `due ${fmtWhen(c.ackDue)}`}
                     </td>
-                    <td data-label="Delay" className={`num delay${delay > 0 ? ' late' : ''}`}>
-                      {delay > 0 ? `+${fmtSpan(delay)}` : c.ackAt ? '+0' : '—'}
-                    </td>
-                    <td data-label="Feedback due">
-                      {c.closedAt ? `closed ${fmtDay(c.closedAt)}` : c.ackAt ? `${fmtDay(c.feedbackDue)} · in ${fmtSpan(c.feedbackDue - nowSecs())}` : 'after acknowledgement'}
+                    <td data-label="Feedback" className="muted">
+                      {c.closedAt ? `given ${fmtDay(c.closedAt)}` : c.ackAt ? `due ${fmtDay(c.feedbackDue)}` : 'starts at acknowledgement'}
                     </td>
                     <td data-label="Status">
                       <Status c={c} />
@@ -325,35 +361,11 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
             </tbody>
           </table>
         )}
-        <dl className="board-foot">
-          <div>
-            <dt>Reports</dt>
-            <dd>{view.cases.length}</dd>
-          </div>
-          <div>
-            <dt>Acknowledged within {fmtSpanLong(view.ackSecs)}</dt>
-            <dd>
-              {view.ackOnTime}
-              {acked > 0 ? ` / ${acked}` : ''}
-            </dd>
-          </div>
-          <div>
-            <dt>Overdue now</dt>
-            <dd className={view.overdue > 0 ? 'late' : undefined}>{view.overdue}</dd>
-          </div>
-          <div>
-            <dt>Feedback within 3 months</dt>
-            <dd>
-              {view.closedOnTime}
-              {view.closedOnTime + view.closedLate > 0 ? ` / ${view.closedOnTime + view.closedLate}` : ''}
-            </dd>
-          </div>
-        </dl>
-      </div>
+      </section>
 
       <div className="split-panels">
-        <section aria-labelledby="pub">
-          <h2 id="pub">On the board, for anyone</h2>
+        <section className="panel" aria-labelledby="pub">
+          <h2 id="pub">On the counter, for anyone</h2>
           <ul>
             <li>When each report arrived, proved to within 15 minutes of block time</li>
             <li>When it was acknowledged and closed, and whether that was on time</li>
@@ -361,7 +373,7 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
             <li>Fingerprints of registered members, and how many were revoked</li>
           </ul>
         </section>
-        <section aria-labelledby="sealed">
+        <section className="panel" aria-labelledby="sealed">
           <h2 id="sealed">Sealed, for nobody else</h2>
           <ul>
             <li>Which member filed a report</li>
@@ -375,12 +387,13 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
       <p className="provenance">
         {plural(view.enrolled, 'current member', 'current members')}
         {view.revoked > 0 ? `, ${view.revoked} revoked` : ''}. Read from Midnight {NETWORK}
-        {readAt ? ` at ${new Date(readAt * 1000).toLocaleTimeString()}` : ''}, contract <span className="mono">{shortId(address)}</span>. The board
-        refreshes every 20 seconds.
+        {readAt ? ` at ${new Date(readAt * 1000).toLocaleTimeString()}` : ''}, contract <span className="mono">{shortId(address)}</span>. The counter
+        refreshes every 20 seconds. Acme Logistics GmbH is a demo organisation.
       </p>
     </section>
   );
 }
+
 
 // ---- member: report ----
 
@@ -638,7 +651,7 @@ function CaseThread({ l, c, address, as, refresh }: { l: Ledger; c: CaseView; ad
 
   return (
     <article className="case" aria-label={`Case ${shortId(c.idHex)}`}>
-      <header className="flip" key={`${c.status}-${c.messageCount}`}>
+      <header className="case-head">
         <span className="mono case-no">{shortId(c.idHex)}</span>
         <Status c={c} />
         <span className="muted">
@@ -848,13 +861,13 @@ export default function App() {
         Skip to content
       </a>
       <header className="top">
-        <a className="wordmark" href="#/clock" aria-label="Sotto, response board">
+        <a className="wordmark" href="#/clock" aria-label="Sotto, response counter">
           <span className="mark" aria-hidden="true" />
           Sotto
         </a>
         {view && <span className="station">{view.orgName}</span>}
         <nav aria-label="Sections">
-          {nav('clock', 'Board')}
+          {nav('clock', 'Counter')}
           {nav('report', 'Report')}
           {nav('officer', 'Officer')}
         </nav>
@@ -875,9 +888,10 @@ export default function App() {
             </Action>
           </div>
         )}
-        {address && !l && !error && (
+        {address && !l && !error && route === 'clock' && <WarmupBody />}
+        {address && !l && !error && route !== 'clock' && (
           <p className="loading" aria-live="polite">
-            {loading ? 'Reading the board from the Midnight ledger…' : ''}
+            {loading ? 'Reading the channel from the Midnight ledger…' : ''}
           </p>
         )}
         {l && view && route === 'clock' && <Clock view={view} address={address} readAt={readAt} />}
@@ -887,7 +901,7 @@ export default function App() {
       <footer>
         <p>
           Sotto is open source (<a href="https://github.com/Owolabenjade/sotto">Apache-2.0</a>) and runs on{' '}
-          <a href="https://midnight.network">Midnight</a>. Reading the board needs nothing. Filing and answering need the Lace wallet on the{' '}
+          <a href="https://midnight.network">Midnight</a>. Reading the counter needs nothing. Filing and answering need the Lace wallet on the{' '}
           {NETWORK} network.
         </p>
       </footer>
