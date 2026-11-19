@@ -911,3 +911,59 @@ textarea:focus {
     transition: none !important;
   }
 }
+
+/* ---- confirmation, disclosure ---- */
+
+.confirm {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: var(--late-bg);
+  border: 1px solid var(--late);
+  border-radius: 4px;
+  animation: flip-in 320ms var(--ease) both;
+  transform-origin: 50% 0;
+}
+
+.confirm p {
+  margin: 0 0 12px;
+  max-width: 60ch;
+}
+
+.btn.danger {
+  color: var(--signal-ink);
+  background: var(--late);
+  border-color: var(--late);
+  font-size: 15px;
+  min-height: 44px;
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: #ffc466;
+}
+
+.aside summary {
+  list-style: none;
+  gap: 10px;
+}
+
+.aside summary::-webkit-details-marker {
+  display: none;
+}
+
+.aside summary::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 160ms var(--ease);
+}
+
+.aside[open] summary::before {
+  transform: rotate(45deg);
+}
+
+.aside summary:hover {
+  color: var(--ink);
+}

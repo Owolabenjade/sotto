@@ -307,7 +307,9 @@ function Clock({ view, address, readAt }: { view: ChannelView; address: string; 
                     </td>
                     <td data-label="Received">{fmtWhen(c.openedAt)}</td>
                     <td data-label="Ack due">{fmtWhen(c.ackDue)}</td>
-                    <td data-label="Acknowledged">{c.ackAt ? `${fmtWhen(c.ackAt)} · after ${fmtSpan(c.ackAt - c.openedAt)}` : `in ${fmtSpan(c.ackDue - nowSecs())}`}</td>
+                    <td data-label="Acknowledged" className={c.ackAt ? undefined : 'muted'}>
+                      {c.ackAt ? `${fmtWhen(c.ackAt)} · after ${fmtSpan(c.ackAt - c.openedAt)}` : 'Not yet'}
+                    </td>
                     <td data-label="Delay" className={`num delay${delay > 0 ? ' late' : ''}`}>
                       {delay > 0 ? `+${fmtSpan(delay)}` : c.ackAt ? '+0' : '—'}
                     </td>
@@ -428,6 +430,7 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
   const [text, setText] = useState('');
   const [importing, setImporting] = useState('');
   const [importErr, setImportErr] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   useEffect(() => {
     if (cred) prefetchKeys(['fileReport', 'reporterMessage']);
@@ -453,8 +456,14 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
           Create my credential
         </Action>
         <details className="aside">
-          <summary>I already have a credential</summary>
-          <Field label="Credential" hint="64 characters, from your backup file." value={importing} onChange={setImporting} mono />
+          <summary>I already have a credential (restore from my backup file)</summary>
+          <Field
+            label="Credential"
+            hint="Open your sotto-credential.txt backup file, copy the 64 characters inside and paste them here."
+            value={importing}
+            onChange={setImporting}
+            mono
+          />
           <button
             type="button"
             className="btn quiet"
@@ -524,17 +533,36 @@ function Report({ l, view, address, refresh }: { l: Ledger; view: ChannelView; a
                 icon={<IconDownload />}
                 onClick={() => download('sotto-credential.txt', bytesToHex(cred.secretKey))}
               />
-              <button
-                type="button"
-                className="btn quiet subtle"
-                onClick={() => {
-                  forgetMember();
-                  setCred(null);
-                }}
-              >
-                Remove from this browser
-              </button>
+              {!confirmRemove && (
+                <button type="button" className="btn quiet subtle" onClick={() => setConfirmRemove(true)}>
+                  Remove from this browser
+                </button>
+              )}
             </div>
+            {confirmRemove && (
+              <div className="confirm" role="alertdialog" aria-labelledby="confirm-title">
+                <p id="confirm-title">
+                  <strong>Remove your credential from this browser?</strong> Without it you can't read the officer's replies or answer them.
+                  You can bring it back only from your backup file.
+                </p>
+                <div className="row">
+                  <button
+                    type="button"
+                    className="btn danger"
+                    onClick={() => {
+                      forgetMember();
+                      setConfirmRemove(false);
+                      setCred(null);
+                    }}
+                  >
+                    Yes, remove it
+                  </button>
+                  <button type="button" className="btn quiet" onClick={() => setConfirmRemove(false)} autoFocus>
+                    Keep it
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {enrolled && !filedThisPeriod && (
@@ -830,9 +858,10 @@ export default function App() {
           {nav('report', 'Report')}
           {nav('officer', 'Officer')}
         </nav>
-        <span className="net">
+        <span className="net" aria-live="polite">
           <span className={`dot${error ? ' off' : ''}`} aria-hidden="true" />
           Midnight {NETWORK}
+          {error ? ' · reconnecting' : ''}
           <LiveClock />
         </span>
       </header>
